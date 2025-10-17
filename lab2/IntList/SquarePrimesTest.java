@@ -18,12 +18,6 @@ public class SquarePrimesTest {
         assertTrue(changed);
     }
 
-
-
-
-
-
-
     @Test
     public  void testSquarePrimeForMore() {
         IntList a = IntList.of(2, 4, 9, 7, 16, 13);
