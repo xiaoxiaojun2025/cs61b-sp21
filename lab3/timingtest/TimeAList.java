@@ -29,7 +29,7 @@ public class TimeAList {
         NS.addLast(32000);
         NS.addLast(128000);
         NS.addLast(512000);
-        NS.addLast(100000000);
+        NS.addLast(10000000);
         AList<Double> times = new AList<>();
         for (int i = 0; i < NS.size(); i += 1) {
             Stopwatch sw = new Stopwatch();
