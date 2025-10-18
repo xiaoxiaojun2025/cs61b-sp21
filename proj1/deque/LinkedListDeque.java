@@ -1,6 +1,6 @@
 package deque;
 /** Deque done with LinkedList */
-public class LinkedListDeque<Item> {
+public class LinkedListDeque<Item> implements Deque<Item>{
     private DNode sentibel;
     private int size;
     /** Node of the Deque*/
@@ -21,7 +21,13 @@ public class LinkedListDeque<Item> {
         sentibel.prev = sentibel;
         size = 0;
     }
+    /** return the capacity of the Deque.(Equals to size). */
+    @Override
+    public int capacity() {
+        return size;
+    }
     /**Add one element to the front of the Dqueue. */
+    @Override
     public void addFirst(Item i) {
         size += 1;
         DNode toBeAdded = new DNode(i, sentibel, sentibel.next);
@@ -29,6 +35,7 @@ public class LinkedListDeque<Item> {
         sentibel.next = toBeAdded;
     }
     /**Return the size of the Dqueue */
+    @Override
     public int size() {
         return size;
     }
@@ -40,6 +47,7 @@ public class LinkedListDeque<Item> {
         sentibel.prev = toBeAdded;
     }
     /**Remove the first element of the Deque and return its value and return null if Deque is empty. */
+    @Override
     public Item removeFirst() {
         if (size == 0) {
             return null;
@@ -54,6 +62,7 @@ public class LinkedListDeque<Item> {
      *and return null if the Deque is empty.
      *
      */
+    @Override
     public Item removeLast() {
         if (size == 0) {
             return null;
@@ -64,11 +73,8 @@ public class LinkedListDeque<Item> {
         sentibel.prev.next = sentibel;
         return res;
     }
-    /**Return true if the Deque is empty, otherwise return false*/
-    public boolean isEmpty() {
-        return size == 0;
-    }
     /**Print all elements of the Deque from the front to the back. */
+    @Override
     public void printDeque() {
         DNode p = sentibel.next;
         while (p != null && p!= sentibel) {
@@ -78,6 +84,7 @@ public class LinkedListDeque<Item> {
         System.out.println();
     }
     /** Get element of the given index.(non-recursive) */
+    @Override
     public Item get(int index) {
         if (index < 0 || index >= size) {
             return null;

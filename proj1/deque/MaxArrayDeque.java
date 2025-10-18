@@ -4,75 +4,29 @@ import afu.org.checkerframework.checker.igj.qual.I;
 
 import java.util.Comparator;
 
-public class MaxArrayDeque<Item> {
+public class MaxArrayDeque<Item> extends ArrayDeque<Item> {
     /** reuse arraydeque. */
-    private ArrayDeque<Item> deque;
-    private Comparator<Item> cmpMethod;
-    private MaxArrayDeque() {
-        deque = new ArrayDeque<>();
-        cmpMethod = new Comparator<Item>() {
-            @Override
-            public int compare(Item o1, Item o2) {
-                return 0;
-            }
-        };
-    }
+    private Comparator<Item> cmp;
     public MaxArrayDeque(Comparator<Item> c) {
-        deque = new ArrayDeque<>();
-        cmpMethod = c;
+        super();
+        cmp = c;
     }
+    /** Return the max of Deque by cmp. */
     public Item max() {
-        if (isEmpty()) {
-            return null;
-        }
-        Item res = deque.get(0);
-        for (int i = 1; i < deque.size(); i += 1) {
-            Item curr = deque.get(i);
-            if (cmpMethod.compare(curr, res) > 0) {
-                res = curr;
-            }
-        }
-        return res;
+        return max(cmp);
     }
+    /** Return the max of Deque by c. */
     public Item max(Comparator<Item> c) {
         if (isEmpty()) {
             return null;
         }
-        Item res = deque.get(0);
-        for (int i = 1; i < deque.size(); i += 1) {
-            Item curr = deque.get(0);
-            if (c.compare(curr, res) > 0) {
-                res = curr;
+        Item res = get(0);
+        for (int i = 1; i < size(); i += 1) {
+            if (c.compare(get(i), res) > 0) {
+                res = get(i);
             }
         }
         return res;
-    }
-    public int size() {
-        return deque.size();
-    }
-    public int capacity() {
-        return deque.capacity();
-    }
-    public boolean isEmpty() {
-        return deque.isEmpty();
-    }
-    public void addFirst(Item i) {
-        deque.addFirst(i);
-    }
-    public void addLast(Item i) {
-        deque.addLast(i);
-    }
-    public Item removeFirst() {
-        return deque.removeFirst();
-    }
-    public Item removeLast() {
-        return deque.removeLast();
-    }
-    public Item get(int index) {
-        return deque.get(index);
-    }
-    public void printDeque() {
-        deque.printDeque();
     }
 
 }

@@ -5,7 +5,7 @@ package deque;
  * 2.rear should be exactly the last element.
  * 3.size should be the size of Deque,the same as capacity.
  */
-public class ArrayDeque<Item> {
+public class ArrayDeque<Item> implements Deque<Item>{
     private Item[] items;
     private int size;
     private int front;
@@ -23,18 +23,17 @@ public class ArrayDeque<Item> {
         capacity = 8;
     }
     /** Return the size of the Deque. */
+    @Override
     public int size() {
         return size;
     }
     /** Return the capacity of the Deque. */
+    @Override
     public int capacity() {
         return capacity;
     }
-    /** check if Deque is empty. */
-    public boolean isEmpty() {
-        return size == 0;
-    }
     /** Get the element of the given index. */
+    @Override
     public Item get(int index) {
         if (index < 0 || index >= size) {
             return null;
@@ -42,6 +41,7 @@ public class ArrayDeque<Item> {
         return items[(front + index + 1) % capacity];
     }
     /** Print all elements of the Deque from the front to the rear. */
+    @Override
     public void printDeque() {
         int begin = (front + 1) % capacity;
         for (int i = 0; i < size; i += 1) {
@@ -70,6 +70,7 @@ public class ArrayDeque<Item> {
         return res;
     }
     /** Add an element to the front of the Deque. */
+    @Override
     public void addFirst(Item i) {
         if (size == capacity) {
             resize((int)(capacity * EXPANSION_FACTOR));
@@ -79,6 +80,7 @@ public class ArrayDeque<Item> {
         front = (front - 1 + capacity) % capacity;
     }
     /** Add an element to the back of the Deque. */
+    @Override
     public void addLast(Item i) {
         if (size == capacity) {
             resize((int)(capacity * EXPANSION_FACTOR));
@@ -88,6 +90,7 @@ public class ArrayDeque<Item> {
         items[rear] = i;
     }
     /** Remove the first element of the Deque and return its value. */
+    @Override
     public Item removeFirst() {
         if (isEmpty()) {
             return null;
@@ -101,6 +104,7 @@ public class ArrayDeque<Item> {
         return res;
     }
     /** Remove the last element of the Deque and return its value. */
+    @Override
     public Item removeLast() {
         if (isEmpty()) {
             return null;
