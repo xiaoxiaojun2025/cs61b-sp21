@@ -21,11 +21,6 @@ public class LinkedListDeque<Item> implements Deque<Item>{
         sentibel.prev = sentibel;
         size = 0;
     }
-    /** return the capacity of the Deque.(Equals to size). */
-    @Override
-    public int capacity() {
-        return size;
-    }
     /**Add one element to the front of the Dqueue. */
     @Override
     public void addFirst(Item i) {

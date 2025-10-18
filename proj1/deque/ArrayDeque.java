@@ -28,7 +28,6 @@ public class ArrayDeque<Item> implements Deque<Item>{
         return size;
     }
     /** Return the capacity of the Deque. */
-    @Override
     public int capacity() {
         return capacity;
     }

@@ -3,8 +3,6 @@ package deque;
 public interface Deque<Item> {
     /** return the size of the Deque. */
     int size();
-    /** return the capacity of the Deque. */
-    int capacity();
     /** print all elements of the Deque. */
     void printDeque();
     /** add one element to the last of the Deque. */

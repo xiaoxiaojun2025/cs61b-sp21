@@ -1,7 +1,5 @@
 package deque;
 
-import afu.org.checkerframework.checker.igj.qual.I;
-
 import java.util.Comparator;
 
 public class MaxArrayDeque<Item> extends ArrayDeque<Item> {
