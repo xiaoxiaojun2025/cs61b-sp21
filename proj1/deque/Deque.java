@@ -17,12 +17,6 @@ public interface Deque<T> {
     T removeFirst();
     /** return the element of the given index. */
     T get(int index);
-    /** tell if two object are equalled. */
-    boolean equals(Object other);
-    /** change to string. */
-    String toString();
-    /** return an iterator. */
-    Iterator<T> iterator();
     /** tell if the Deque is empty. */
     default boolean isEmpty() {
         return size() == 0;
