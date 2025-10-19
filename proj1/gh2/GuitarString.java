@@ -12,9 +12,6 @@ public class GuitarString {
     private static final int SR = 44100;      // Sampling Rate
     private static final double DECAY = .996; // energy decay factor
 
-    public int getSR() {
-        return SR;
-    }
     /* Buffer for storing sound data. */
     private Deque<Double> buffer;
 

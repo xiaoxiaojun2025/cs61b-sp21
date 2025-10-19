@@ -8,8 +8,8 @@ import java.util.Iterator;
  * 2.rear should be exactly the last element.
  * 3.size should be the size of Deque,the same as capacity.
  */
-public class ArrayDeque<Item> implements Deque<Item>,Iterable<Item>{
-    private Item[] items;
+public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
+    private T[] items;
     private int size;
     private int front;
     private int rear;
@@ -20,7 +20,7 @@ public class ArrayDeque<Item> implements Deque<Item>,Iterable<Item>{
     /** Init Deque. */
     public ArrayDeque() {
         size = 0;
-        items = (Item[]) new Object[8];
+        items = (T[]) new Object[8];
         front = 0;
         rear = 0;
         capacity = 8;
@@ -36,7 +36,7 @@ public class ArrayDeque<Item> implements Deque<Item>,Iterable<Item>{
     }
     /** Get the element of the given index. */
     @Override
-    public Item get(int index) {
+    public T get(int index) {
         if (index < 0 || index >= size) {
             return null;
         }
@@ -54,16 +54,17 @@ public class ArrayDeque<Item> implements Deque<Item>,Iterable<Item>{
     }
     /** Resize the capacity of the Deque. */
     private void resize(int newCapacity) {
-        Item[] temp = (Item[]) new Object[newCapacity];
+        newCapacity = Math.max(1, newCapacity);
+        T[] temp = (T[]) new Object[newCapacity];
         System.arraycopy(getArray(), 0, temp, 0, size);
         capacity = newCapacity;
         front = capacity - 1;
-        rear = size - 1;
+        rear = (size - 1 + capacity) % capacity;
         items = temp;
     }
     /** Helper of resize,which get an array of Deque from front to rear. */
-    private Item[] getArray() {
-        Item[] res = (Item[]) new Object[size];
+    private T[] getArray() {
+        T[] res = (T[]) new Object[size];
         int begin = (front + 1) % capacity;
         for (int i = 0; i < size; i += 1) {
             res[i] = items[begin];
@@ -73,9 +74,9 @@ public class ArrayDeque<Item> implements Deque<Item>,Iterable<Item>{
     }
     /** Add an element to the front of the Deque. */
     @Override
-    public void addFirst(Item i) {
+    public void addFirst(T i) {
         if (size == capacity) {
-            resize((int)(capacity * EXPANSION_FACTOR));
+            resize((int) (capacity * EXPANSION_FACTOR));
         }
         size += 1;
         items[front] = i;
@@ -83,9 +84,9 @@ public class ArrayDeque<Item> implements Deque<Item>,Iterable<Item>{
     }
     /** Add an element to the back of the Deque. */
     @Override
-    public void addLast(Item i) {
+    public void addLast(T i) {
         if (size == capacity) {
-            resize((int)(capacity * EXPANSION_FACTOR));
+            resize((int) (capacity * EXPANSION_FACTOR));
         }
         size += 1;
         rear = (rear + 1) % capacity;
@@ -93,29 +94,29 @@ public class ArrayDeque<Item> implements Deque<Item>,Iterable<Item>{
     }
     /** Remove the first element of the Deque and return its value. */
     @Override
-    public Item removeFirst() {
+    public T removeFirst() {
         if (isEmpty()) {
             return null;
         }
         front = (front + 1) % capacity;
-        Item res = items[front];
+        T res = items[front];
         size -= 1;
-        if (size / (double)capacity < GOOD_COEF) {
-            resize((int)(capacity * REDUCTION_FACTOR));
+        if (size / (double) capacity < GOOD_COEF) {
+            resize((int) (capacity * REDUCTION_FACTOR));
         }
         return res;
     }
     /** Remove the last element of the Deque and return its value. */
     @Override
-    public Item removeLast() {
+    public T removeLast() {
         if (isEmpty()) {
             return null;
         }
-        Item res = items[rear];
+        T res = items[rear];
         rear = (rear - 1 + capacity) % capacity;
         size -= 1;
-        if (size / (double)capacity < GOOD_COEF) {
-            resize((int)(capacity * REDUCTION_FACTOR));
+        if (size / (double) capacity < GOOD_COEF) {
+            resize((int) (capacity * REDUCTION_FACTOR));
         }
         return res;
     }
@@ -124,15 +125,15 @@ public class ArrayDeque<Item> implements Deque<Item>,Iterable<Item>{
         if (other == this) {
             return true;
         }
-        if (other == null || other.getClass() != this.getClass()) {
+        if (other == null || !(other instanceof Deque)) {
             return false;
         }
-        ArrayDeque<Item> o = (ArrayDeque<Item>) other;
+        Deque<T> o = (Deque<T>) other;
         if (size != o.size()) {
             return false;
         }
-        Iterator<Item> i1 = iterator();
-        Iterator<Item> i2 = o.iterator();
+        Iterator<T> i1 = iterator();
+        Iterator<T> i2 = o.iterator();
         while (i1.hasNext() && i2.hasNext()) {
             if (!i1.next().equals(i2.next())) {
                 return false;
@@ -156,12 +157,12 @@ public class ArrayDeque<Item> implements Deque<Item>,Iterable<Item>{
     }
     /** return an iterator. */
     @Override
-    public Iterator<Item> iterator() {
+    public Iterator<T> iterator() {
         return new ArrayDequeIterator();
     }
-    private class ArrayDequeIterator implements Iterator<Item> {
-        public int pos;
-        public ArrayDequeIterator() {
+    private class ArrayDequeIterator implements Iterator<T> {
+        private int pos;
+        ArrayDequeIterator() {
             pos = 0;
         }
         @Override
@@ -169,8 +170,8 @@ public class ArrayDeque<Item> implements Deque<Item>,Iterable<Item>{
             return pos < size;
         }
         @Override
-        public Item next() {
-            Item res = get(pos);
+        public T next() {
+            T res = get(pos);
             pos += 1;
             return res;
         }

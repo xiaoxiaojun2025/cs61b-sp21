@@ -1,20 +1,28 @@
 package deque;
 
-public interface Deque<Item> {
+import java.util.Iterator;
+
+public interface Deque<T> {
     /** return the size of the Deque. */
     int size();
     /** print all elements of the Deque. */
     void printDeque();
     /** add one element to the last of the Deque. */
-    void addLast(Item i);
+    void addLast(T i);
     /** add one element to the front of the Deque. */
-    void addFirst(Item i);
+    void addFirst(T i);
     /** remove the back of the Deque. */
-    Item removeLast();
+    T removeLast();
     /** remove the front of the Deque. */
-    Item removeFirst();
+    T removeFirst();
     /** return the element of the given index. */
-    Item get(int index);
+    T get(int index);
+    /** tell if two object are equalled. */
+    boolean equals(Object other);
+    /** change to string. */
+    String toString();
+    /** return an iterator. */
+    Iterator<T> iterator();
     /** tell if the Deque is empty. */
     default boolean isEmpty() {
         return size() == 0;
