@@ -17,10 +17,11 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     public static final double EXPANSION_FACTOR = 2.0;
     public static final double REDUCTION_FACTOR = 0.5;
     public static final double GOOD_COEF = 0.25;
+    public static int minCapacity = 8;
     /** Init Deque. */
     public ArrayDeque() {
         size = 0;
-        items = (T[]) new Object[8];
+        items = (T[]) new Object[minCapacity];
         front = 0;
         rear = 0;
         capacity = 8;
@@ -54,7 +55,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     }
     /** Resize the capacity of the Deque. */
     private void resize(int newCapacity) {
-        newCapacity = Math.max(1, newCapacity);
+        newCapacity = Math.max(minCapacity, newCapacity);
         T[] temp = (T[]) new Object[newCapacity];
         System.arraycopy(getArray(), 0, temp, 0, size);
         capacity = newCapacity;
