@@ -1,7 +1,5 @@
 package deque;
 
-import java.util.Iterator;
-
 public interface Deque<T> {
     /** return the size of the Deque. */
     int size();

@@ -14,14 +14,14 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     private int front;
     private int rear;
     private int capacity;
-    public static final double EXPANSION_FACTOR = 2.0;
-    public static final double REDUCTION_FACTOR = 0.5;
-    public static final double GOOD_COEF = 0.25;
-    private static int minCapacity = 8;
+    private static final double EXPANSION_FACTOR = 2.0;
+    private static final double REDUCTION_FACTOR = 0.5;
+    private static final double GOOD_COEF = 0.25;
+    private static final int MINCAPACITY = 8;
     /** Init Deque. */
     public ArrayDeque() {
         size = 0;
-        items = (T[]) new Object[minCapacity];
+        items = (T[]) new Object[MINCAPACITY];
         front = 0;
         rear = 0;
         capacity = 8;
@@ -30,10 +30,6 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     @Override
     public int size() {
         return size;
-    }
-    /** Return the capacity of the Deque. */
-    public int capacity() {
-        return capacity;
     }
     /** Get the element of the given index. */
     @Override
@@ -55,7 +51,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     }
     /** Resize the capacity of the Deque. */
     private void resize(int newCapacity) {
-        newCapacity = Math.max(minCapacity, newCapacity);
+        newCapacity = Math.max(MINCAPACITY, newCapacity);
         T[] temp = (T[]) new Object[newCapacity];
         System.arraycopy(getArray(), 0, temp, 0, size);
         capacity = newCapacity;
@@ -143,20 +139,6 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
             i2 += 1;
         }
         return true;
-    }
-    @Override
-    public String toString() {
-        if (size == 0) {
-            return "[]";
-        }
-        StringBuilder res = new StringBuilder("[");
-        for (int i = 0; i < size - 1; i += 1) {
-            res.append(get(i));
-            res.append(", ");
-        }
-        res.append(get(size - 1));
-        res.append("]");
-        return res.toString();
     }
     /** return an iterator. */
     @Override

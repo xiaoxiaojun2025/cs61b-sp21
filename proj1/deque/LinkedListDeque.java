@@ -132,20 +132,6 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
         }
         return true;
     }
-    @Override
-    public String toString() {
-        if (size == 0) {
-            return "[]";
-        }
-        StringBuilder res = new StringBuilder("[");
-        for (int i = 0; i < size - 1; i += 1) {
-            res.append(get(i));
-            res.append(", ");
-        }
-        res.append(get(size - 1));
-        res.append("]");
-        return res.toString();
-    }
 
     /** return an iterator. */
     @Override

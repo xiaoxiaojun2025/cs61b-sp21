@@ -165,22 +165,4 @@ public class LinkedListDequeTest {
         assertNull(f);
         assertNull(f1);
     }
-    /* test equals and toString. */
-    @Test
-    public void testToStringEquals() {
-        LinkedListDeque<Integer> a = new LinkedListDeque<>();
-        LinkedListDeque<Integer> b = new LinkedListDeque<>();
-        LinkedListDeque<Integer> c = new LinkedListDeque<>();
-        a.addFirst(8);
-        a.addFirst(7);
-        a.addFirst(6);
-        a.addFirst(5);
-        b.addLast(5);
-        b.addLast(6);
-        b.addLast(7);
-        b.addLast(8);
-        assertEquals("[5, 6, 7, 8]", a.toString());
-        assertTrue(a.equals(b));
-        assertEquals("[]", c.toString());
-    }
 }

@@ -65,24 +65,6 @@ public class ArrayDequeTest {
         assertNull(e);
     }
     @Test
-    /* Add many elements and test the function of resize. */
-    public void testManyElements() {
-        ArrayDeque<Integer> a1 = new ArrayDeque<>();
-        for (int i = 0 ; i < 10000; i += 1) {
-            a1.addLast(i + 1);
-        }
-        System.out.println(a1.capacity());
-        assertEquals(10000, a1.size());
-        Integer a = a1.get(2999);
-        assertEquals(3000, a, 0.0);
-        for (int i = 0; i < 8000; i += 1) {
-            a1.removeLast();
-        }
-        System.out.println(a1.capacity());
-        Integer b = a1.get(2999);
-        assertNull(b);
-    }
-    @Test
     /* Test different types of element. */
     public void testDifferentElements() {
         ArrayDeque<Integer> a1 = new ArrayDeque<>();
@@ -103,27 +85,4 @@ public class ArrayDequeTest {
         assertEquals(3.1415925, b, 0.0);
         assertEquals("good", c);
     }
-    /* test tostring and equals. */
-    @Test
-    public void testToStringEquals() {
-        ArrayDeque<Integer> a = new ArrayDeque<>();
-        a.addLast(3);
-        a.addLast(4);
-        a.addLast(5);
-        a.addLast(6);
-        a.addLast(7);
-        a.addLast(8);
-        ArrayDeque<Integer> b = new ArrayDeque<>();
-        ArrayDeque<Double> c = new ArrayDeque<>();
-        b.addFirst(8);
-        b.addFirst(7);
-        b.addFirst(6);
-        b.addFirst(5);
-        b.addFirst(4);
-        b.addFirst(3);
-        assertEquals("[3, 4, 5, 6, 7, 8]", a.toString());
-        assertTrue(a.equals(b));
-        assertEquals("[]", c.toString());
-    }
-
 }
