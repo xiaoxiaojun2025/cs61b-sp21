@@ -17,7 +17,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     public static final double EXPANSION_FACTOR = 2.0;
     public static final double REDUCTION_FACTOR = 0.5;
     public static final double GOOD_COEF = 0.25;
-    public static int minCapacity = 8;
+    private static int minCapacity = 8;
     /** Init Deque. */
     public ArrayDeque() {
         size = 0;
@@ -129,12 +129,12 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         if (other == null || !(other instanceof Deque)) {
             return false;
         }
-        Deque<T> o = (Deque<T>) other;
+        Deque<?> o = (Deque<?>) other;
         if (size != o.size()) {
             return false;
         }
         Iterator<T> i1 = iterator();
-        Iterator<T> i2 = o.iterator();
+        Iterator<?> i2 = o.iterator();
         while (i1.hasNext() && i2.hasNext()) {
             if (!i1.next().equals(i2.next())) {
                 return false;

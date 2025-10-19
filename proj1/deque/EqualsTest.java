@@ -20,5 +20,7 @@ public class EqualsTest {
         b.addLast(4);
         b.addLast(3);
         assertTrue(a.equals(b));
+        assertTrue(b.equals(a));
+
     }
 }
