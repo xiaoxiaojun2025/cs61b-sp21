@@ -1,11 +1,14 @@
 package deque;
+
+import java.util.Iterator;
+
 /** Deque implemented by Array
  * Invariants:
  * 1.front should be the previous of the first element.
  * 2.rear should be exactly the last element.
  * 3.size should be the size of Deque,the same as capacity.
  */
-public class ArrayDeque<Item> implements Deque<Item>{
+public class ArrayDeque<Item> implements Deque<Item>,Iterable<Item>{
     private Item[] items;
     private int size;
     private int front;
@@ -115,5 +118,61 @@ public class ArrayDeque<Item> implements Deque<Item>{
             resize((int)(capacity * REDUCTION_FACTOR));
         }
         return res;
+    }
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if (other == null || other.getClass() != this.getClass()) {
+            return false;
+        }
+        ArrayDeque<Item> o = (ArrayDeque<Item>) other;
+        if (size != o.size()) {
+            return false;
+        }
+        Iterator<Item> i1 = iterator();
+        Iterator<Item> i2 = o.iterator();
+        while (i1.hasNext() && i2.hasNext()) {
+            if (!i1.next().equals(i2.next())) {
+                return false;
+            }
+        }
+        return true;
+    }
+    @Override
+    public String toString() {
+        if (size == 0) {
+            return "[]";
+        }
+        StringBuilder res = new StringBuilder("[");
+        for (int i = 0; i < size - 1; i += 1) {
+            res.append(get(i));
+            res.append(", ");
+        }
+        res.append(get(size - 1));
+        res.append("]");
+        return res.toString();
+    }
+    /** return an iterator. */
+    @Override
+    public Iterator<Item> iterator() {
+        return new ArrayDequeIterator();
+    }
+    private class ArrayDequeIterator implements Iterator<Item> {
+        public int pos;
+        public ArrayDequeIterator() {
+            pos = 0;
+        }
+        @Override
+        public boolean hasNext() {
+            return pos < size;
+        }
+        @Override
+        public Item next() {
+            Item res = get(pos);
+            pos += 1;
+            return res;
+        }
     }
 }

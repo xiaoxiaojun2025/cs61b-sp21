@@ -102,6 +102,28 @@ public class ArrayDequeTest {
         assertEquals(89, a, 0.0);
         assertEquals(3.1415925, b, 0.0);
         assertEquals("good", c);
-
     }
+    /* test tostring and equals. */
+    @Test
+    public void testToStringEquals() {
+        ArrayDeque<Integer> a = new ArrayDeque<>();
+        a.addLast(3);
+        a.addLast(4);
+        a.addLast(5);
+        a.addLast(6);
+        a.addLast(7);
+        a.addLast(8);
+        ArrayDeque<Integer> b = new ArrayDeque<>();
+        ArrayDeque<Double> c = new ArrayDeque<>();
+        b.addFirst(8);
+        b.addFirst(7);
+        b.addFirst(6);
+        b.addFirst(5);
+        b.addFirst(4);
+        b.addFirst(3);
+        assertEquals("[3, 4, 5, 6, 7, 8]", a.toString());
+        assertTrue(a.equals(b));
+        assertEquals("[]", c.toString());
+    }
+
 }
