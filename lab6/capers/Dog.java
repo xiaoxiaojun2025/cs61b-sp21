@@ -1,17 +1,18 @@
 package capers;
 
+
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import static capers.Utils.*;
 
 /** Represents a dog that can be serialized.
- * @author TODO
+ * @author xiaoxiaojun
 */
-public class Dog { // TODO
+public class Dog {
 
     /** Folder that dogs live in. */
-    static final File DOG_FOLDER = null; // TODO (hint: look at the `join`
-                                         //      function in Utils)
+    static final File DOG_FOLDER = new File(CapersRepository.CAPERS_FOLDER, "dogs");
 
     /** Age of dog. */
     private int age;
@@ -39,8 +40,36 @@ public class Dog { // TODO
      * @return Dog read from file
      */
     public static Dog fromFile(String name) {
-        // TODO (hint: look at the Utils file)
-        return null;
+        File target_dog = new File(DOG_FOLDER, name);
+        if (!target_dog.exists()) {
+            return null;
+        }
+        String[] s = divideString(Utils.readContentsAsString(target_dog));
+        return new Dog(s[0], s[1], Integer.parseInt(s[2]));
+    }
+
+    /** Help divide a string to parts by space and get the first three strings. */
+    private static String[] divideString(String s) {
+        StringBuilder[] tres = new StringBuilder[3];
+        for (int i = 0; i < tres.length; i += 1) {
+            tres[i] = new StringBuilder();
+        }
+        int count = 0;
+        for (int i = 0; i < s.length(); i += 1) {
+            if (count == 3) {
+                break;
+            }
+            if (s.charAt(i) != '\n') {
+                tres[count].append(s.charAt(i));
+            } else {
+                count += 1;
+            }
+        }
+        String[] res = new String[3];
+        for (int i = 0; i < tres.length; i += 1) {
+            res[i] = tres[i].toString();
+        }
+        return res;
     }
 
     /**
@@ -55,8 +84,9 @@ public class Dog { // TODO
     /**
      * Saves a dog to a file for future use.
      */
-    public void saveDog() {
-        // TODO (hint: don't forget dog names are unique)
+    public void saveDog() throws IOException {
+        File newDog = new File(DOG_FOLDER, name);
+        Utils.writeContents(newDog, name, "\n", breed, "\n", Integer.toString(age), "\n");
     }
 
     @Override
