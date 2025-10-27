@@ -3,7 +3,7 @@ package bstmap;
 import java.util.*;
 
 /**Implement BSTMap with nodes threading. */
-public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V>, Iterable<K>{
+public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V>{
     private BSTNode<K, V> root;
     private BSTNode<K, V> threadSentinel;
     private int size;
