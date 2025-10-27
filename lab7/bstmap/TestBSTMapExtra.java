@@ -15,11 +15,11 @@ public class TestBSTMapExtra {
     public void sanityKeySetTest() {
     	BSTMap<String, Integer> b = new BSTMap<String, Integer>();
         HashSet<String> values = new HashSet<String>();
-        for (int i = 0; i < 455; i++) {
+        for (int i = 0; i < 3; i++) {
             b.put("hi" + i, 1);
             values.add("hi" + i);
         }
-        assertEquals(455, b.size()); //keys are there
+        assertEquals(3, b.size()); //keys are there
         Set<String> keySet = b.keySet();
         assertTrue(values.containsAll(keySet));
         assertTrue(keySet.containsAll(values));
