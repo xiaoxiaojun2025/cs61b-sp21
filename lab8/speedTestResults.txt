@@ -1,0 +1,29 @@
+The partial results of InsertRandomSpeedTest.java
+----------------------------------------------------
+when L = 1
+TYPE/N          1e4     1e5     1e6     1e7     1e8
+
+ULLMap          0.01    0.02    0.10    0.98    9.81
+
+MYHashMap       0.01    0.02    0.06    0.52    5.49
+
+Java's HashMap  0.00    0.01    0.04    0.40    3.40
+----------------------------------------------------
+when L = 5
+TYPE/N          1e4     1e5     1e6     1e7     1e8
+
+ULLMap          0.26    RE      RE      RE      RE
+
+MYHashMap       0.02    0.07    1.09    13.18   too long
+
+Java's HashMap  0.00    0.04    0.35    4.80    54.76
+----------------------------------------------------
+when L = 10
+TYPE/N          1e4     1e5     1e6     1e7     1e8
+
+ULLMap          0.28    RE      RE      RE      RE
+
+MYHashMap       0.02    0.08    1.31    23.35   too long
+
+Java's HashMap  0.00    0.04    0.43    5.85    too long
+
