@@ -1,0 +1,54 @@
+package gitlet;
+
+public enum ErrorMessage {
+
+    /* Common error. */
+
+    /** If a user doesn’t input any arguments. */
+    NON_ARGUMENT("Please enter a command."),
+    /** If a user inputs a command that doesn’t exist. */
+    NON_EXISTING_COMMAND("No command with that name exists."),
+    /** If a user inputs a command with the wrong number or format of operands. */
+    INCORRECT_OPERANDS("Incorrect operands."),
+    /** If a user inputs a command that requires being in an initialized Gitlet working directory
+     * (i.e., one containing a .gitlet subdirectory), but is not in such a directory. */
+    GITLET_NOT_INITIALIZED("Not in an initialized Gitlet directory."),
+
+    /* Error for INIT command. */
+
+    /**  If there is already a Gitlet version-control system in the current directory, it should abort.
+     * It should NOT overwrite the existing system with a new one. */
+    GITLET_ALREADY_EXISTS("A Gitlet version-control system already exists in the current directory."),
+
+    /* Error for ADD command. */
+
+    /** If the file does not exist. */
+    NON_EXISTING_FILE("File does not exist."),
+
+    /* Error for COMMIT command. */
+
+    /** If no files have been staged, abort. */
+    NON_FILES_STAGED("No changes added to the commit."),
+    /** Every commit must have a non-blank message. If it doesn’t, it errors. */
+    NON_MESSAGE_COMMIT("Please enter a commit message."),
+
+    /* Error for RM command. */
+    /**  If the file is neither staged nor tracked by the head commit. */
+    NO_NEED_TO_RM("No reason to remove the file.");
+
+
+
+
+    private final String message;
+    ErrorMessage(String message) {
+        this.message = message;
+    }
+    /** Get the errorMessage. */
+    public String getMessage() {
+        return message;
+    }
+
+
+
+
+}
