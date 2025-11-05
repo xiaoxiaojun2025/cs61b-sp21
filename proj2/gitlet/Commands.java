@@ -1,7 +1,6 @@
 package gitlet;
 
 import java.io.File;
-import java.io.IOException;
 
 import static gitlet.Utils.*;
 /** The main class processing command line commands. */
@@ -11,7 +10,6 @@ public class Commands {
      *  the ADDITION stores the filenames. */
     public static void add(String filename) {
         if (!Repository.isGitletSetUp()) {Main.printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());}
-        File target = Repository.ADDITION;
         File FileContent = join(Repository.CWD, filename);
         if (!FileContent.exists()) {Main.printError(ErrorMessage.NON_EXISTING_FILE.getMessage());}
         /* Create a new Blob. */
@@ -21,11 +19,9 @@ public class Commands {
         File blobFile = join(Repository.BLOBS_DIR, newId);
         writeObject(blobFile, newBlob);
         /* To be added in stagedArea. */
-        File newFile = join(target, filename);
+        File newFile = join(Repository.ADDITION, filename);
         if (Repository.getCurrCommit().containBlob(newBlob)) {
-            if (newFile.exists()) {
-                newFile.delete();
-            }
+            newFile.delete();
             return;
         }
         writeContents(newFile, newId);
@@ -34,7 +30,7 @@ public class Commands {
     /** Create a new commit from the copy of HEAD, then check StagedArea
      *  to overwrite, add or remove files to it ,then set it as the new commit.
      */
-    public static void commit(String message) throws IOException {
+    public static void commit(String message) {
         if (!Repository.isGitletSetUp()) {Main.printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());}
         File addition = Repository.ADDITION;
         File removal = Repository.REMOVAL;
@@ -52,12 +48,18 @@ public class Commands {
             newCommit.removeFile(toBeRemoved.getName());
         }
         String newId = newCommit.getId();
-        /* Add it to the COMMITS_DIR, and update the pointers. */
-        File newFile = new File(Repository.COMMITS_DIR, newId);
-        writeObject(newFile, newCommit);
-        Repository.moveHead(newId);
+        /* Add it to the COMMIT_DIR. */
+        writeObject(join(Repository.COMMITS_DIR, newId), newCommit);
+        /* Deal with the branch and head. */
+        String currBranch = Repository.getCurrBranch();
+        if (currBranch != null) {
+            writeContents(join(Repository.BRANCHES_DIR, currBranch), newId);
+        } else{
+            Repository.moveHead(newId);
+        }
         Repository.clearStagedArea();
-        /* Branch have not been delt yet. */
+
+
     }
     /** Check if a dictionary is empty. */
     private static boolean isDictionaryEmpty(File target) {
@@ -70,7 +72,7 @@ public class Commands {
     /** Remove the file from the working dictionary and
      *  stage it to the REMOVAL.
      */
-    public static void remove(String filename) throws IOException {
+    public static void remove(String filename) {
         for (File file: Repository.ADDITION.listFiles()) {
             if (file.getName().equals(filename)) {
                 file.delete();
@@ -80,9 +82,9 @@ public class Commands {
         /* Add to the REMOVAL if the file is tracked. */
         Commit currCommit = Repository.getCurrCommit();
         if (currCommit.containFilename(filename)) {
-            File toBeRemoved = join(Repository.REMOVAL, filename);
-            toBeRemoved.createNewFile();
-            join(Repository.CWD, filename).delete();
+            writeContents(join(Repository.REMOVAL, filename));
+            /* Delete the file. */
+            restrictedDelete(join(Repository.CWD, filename));
             return;
         }
         Main.printError(ErrorMessage.NO_NEED_TO_RM.getMessage());
@@ -100,8 +102,7 @@ public class Commands {
     }
     /** Print all commits ever made with no specific order. */
     public static void global_log() {
-        for (String id:plainFilenamesIn(Repository.COMMITS_DIR)) {
-            File file = join(Repository.COMMITS_DIR, id);
+        for (File file: Repository.COMMITS_DIR.listFiles()) {
             Commit currCommit = readObject(file, Commit.class);
             Commit.printCommit(currCommit);
         }

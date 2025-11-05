@@ -1,7 +1,6 @@
 package gitlet;
 
 import java.io.File;
-import java.io.IOException;
 
 import static gitlet.Utils.*;
 
@@ -36,12 +35,12 @@ public class Repository {
     /** The dictionary contains commits.
      *  Each file's name is sha1 and content is byte array. */
     public static final File COMMITS_DIR = join(GITLET_DIR, "commits");
-    /** The HEAD pointer points to the current commit, here, it's a file
-     *  with its content the sha-1 of the commit.
+    /** The HEAD pointer points to the current branch, here, it's a file
+     *  with its content the name of branch.
      */
-    public static final File HEAD = join(COMMITS_DIR, "head");
+    public static final File HEAD = join(GITLET_DIR, "head");
     /** The branches dictory, a branch always points to the front of the commit. */
-    public static final File BRANCHES_DIR = join(COMMITS_DIR, "branches");
+    public static final File BRANCHES_DIR = join(GITLET_DIR, "branches");
     /** Tell if the .gitlet has been built. */
     public static boolean isGitletSetUp() {
         return GITLET_DIR.exists();
@@ -49,7 +48,7 @@ public class Repository {
     /** Init a new .gitlet dictionary in pwd.
      *  If .gitlet exists, it will do nothing.
      */
-    public static void setUpPersistence() throws IOException {
+    public static void setUpPersistence() {
         if (isGitletSetUp()) {
             Main.printError(ErrorMessage.GITLET_ALREADY_EXISTS.getMessage());
         }
@@ -57,26 +56,28 @@ public class Repository {
         STAGED_AREA.mkdir();
         COMMITS_DIR.mkdir();
         BLOBS_DIR.mkdir();
-        HEAD.createNewFile();
         BRANCHES_DIR.mkdir();
         ADDITION.mkdir();
         REMOVAL.mkdir();
         Commit origin = new Commit();
         writeObject(join(COMMITS_DIR, origin.getId()), origin);
-        writeContents(HEAD, origin.getId());
+        writeContents(HEAD, "master");
         File master = join(BRANCHES_DIR, "master");
-        master.createNewFile();
         writeContents(master, origin.getId());
     }
     /** Get the current commit or other words the HEAD pointer. */
     public static Commit getCurrCommit() {
-        String currString = readContentsAsString(Repository.HEAD);
-        File target = join(Repository.COMMITS_DIR, currString);
-        return readObject(target, Commit.class);
+        String currString = readContentsAsString(HEAD);
+        File target = join(BRANCHES_DIR, currString);
+        if (!target.exists()) {
+            return readObject(join(COMMITS_DIR, currString), Commit.class);
+        } else {
+            return readObject(join(COMMITS_DIR, readContentsAsString(target)), Commit.class);
+        }
     }
     /** Move the HEAD pointer. */
-    static void moveHead(String newId) {
-        writeContents(HEAD, newId);
+    static void moveHead(String newHead) {
+        writeContents(HEAD, newHead);
     }
     /** Remove everything from the stagedArea. */
     static void clearStagedArea() {
@@ -87,4 +88,13 @@ public class Repository {
             file.delete();
         }
     }
+    /** Get current branch.
+     *  And return null if head is detched, which will not happen normally. */
+    public static String getCurrBranch() {
+        if (!join(BRANCHES_DIR, readContentsAsString(HEAD)).exists()) {
+            return null;
+        }
+        return readContentsAsString(HEAD);
+    }
+
 }
