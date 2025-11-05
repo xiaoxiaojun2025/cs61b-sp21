@@ -27,5 +27,13 @@ public class Blob implements Serializable {
     public String getId() {
         return sha1(serialize(this));
     }
+    /** Get the content of the blob. */
+    public byte[] getContent() {
+        return content;
+    }
+    /** Write the blob to CWD's file. */
+    void backIntoFile() {
+        writeContents(join(Repository.CWD, filename), content);
+    }
 
 }

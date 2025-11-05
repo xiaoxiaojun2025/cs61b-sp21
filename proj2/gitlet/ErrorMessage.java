@@ -34,7 +34,33 @@ public enum ErrorMessage {
 
     /* Error for RM command. */
     /**  If the file is neither staged nor tracked by the head commit. */
-    NO_NEED_TO_RM("No reason to remove the file.");
+    NO_NEED_TO_RM("No reason to remove the file."),
+
+    /* Error for FIND command. */
+    /** If no such commit exists. */
+    NON_EXISTING_COMMIT("Found no commit with that message."),
+
+    /* Error for CHECKOUT command. */
+    /** If the file does not exist in the previous commit. */
+    FILE_NOT_IN_COMMIT("File does not exist in that commit."),
+    /** If no commit with the given id exists. */
+    NON_EXISTING_COMMIT_WITH_ID("No commit with that id exists."),
+    /** If no branch with that name exists. */
+    NON_EXISTING_BRANCH("No such branch exists."),
+    /** If that branch is the current branch. */
+    ALREADY_CURRENT_BRANCH("No need to checkout the current branch."),
+    /** If a working file is untracked in the current branch and would be overwritten by the checkout. */
+    UNTRACKED_FILE_EXISTS("There is an untracked file in the way; delete it, or add and commit it first."),
+
+    /* Error for BRANCH command. */
+    /**  If a branch with the given name already exists. */
+    ALREADY_EXISTING_BRANCH("A branch with that name already exists."),
+
+    /* Error for RM-BRANCH command. */
+    /** If a branch with the given name does not exist. */
+    NON_EXISTING_BRANCH_WITH_NAME("A branch with that name does not exist."),
+    /** If you try to remove the branch you’re currently on. */
+    CURRENT_BRANCH_REMOVE_ABORTED("Cannot remove the current branch.");
 
 
 

@@ -1,5 +1,6 @@
 package gitlet;
 
+import java.io.File;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -32,6 +33,7 @@ public class Commit implements Serializable {
     private String parent2;
     /** The references to this commit's blobs,
      *  which contain only plain files without subdictionary.
+     *  This key is filename and value is sha-1 of the blob.
      */
     private Map<String, String> blobs;
     /** Constructor of the class, which doesn't contain timestamp,
@@ -72,6 +74,13 @@ public class Commit implements Serializable {
         if (blobs == null || !blobs.containsKey(other.getFilename())) {return false;}
         return blobs.get(other.getFilename()).equals(other.getId());
     }
+    /** Check if the commit contains a given file. */
+    public boolean containFile(File file) {
+        return blobs != null && blobs.containsKey(file.getName());
+    }
+    public String getBlobByFileName(String filename) {
+        return blobs.get(filename);
+    }
     /** Check if the commit contains a given filename. */
     public boolean containFilename(String other) {
         return blobs != null && blobs.containsKey(other);
@@ -79,7 +88,7 @@ public class Commit implements Serializable {
     /** Overwrite or add a blob. */
     void overwriteAdd(Blob newBlob) {
         if (blobs == null) {
-            blobs = new HashMap<>();
+            blobs = new TreeMap<>();
         }
         blobs.put(newBlob.getFilename(), newBlob.getId());
     }
@@ -94,7 +103,7 @@ public class Commit implements Serializable {
         Instant instant = timestamp.toInstant();
         ZonedDateTime zdt = instant.atZone(ZoneId.systemDefault());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(
-                "EEE MMM d HH:mm:ss yyyy", Locale.ENGLISH);
+                "EEE MMM d HH:mm:ss yyyy Z", Locale.ENGLISH);
         return zdt.format(formatter);
     }
     /** Print all message of one commit. */
@@ -106,7 +115,7 @@ public class Commit implements Serializable {
        if (parent2 != null && parent1 != null) {
            System.out.println("Merge: " + parent1.substring(0, 7) + parent2.substring(0, 7));
        }
-       System.out.println(commit.getId());
+       System.out.println("commit " + commit.getId());
        System.out.println("Date: " + commit.getFormattedTimestamp());
        System.out.println(commit.getMessage());
        System.out.println();
