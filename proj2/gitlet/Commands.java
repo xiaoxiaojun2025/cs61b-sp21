@@ -184,11 +184,23 @@ class Commands {
         if (currBranch.equals(checkoutBranch)) {
             Main.printError(ErrorMessage.ALREADY_CURRENT_BRANCH.getMessage());
         }
+        String checkoutID = readContentsAsString(join(Repository.BRANCHES_DIR, checkoutBranch));
+        checkoutToCommit(checkoutID);
+        /* Change HEAD. */
+        Repository.moveHead(checkoutBranch);
+    }
+    /** Checkout to specific commit.
+     *  Remember there will never be in a detached head state,
+     *  but this method won't move pointer directly, should be used with other methods.  */
+    private static void checkoutToCommit(String ID) {
         /* Get commits. */
         Commit currCommit = Repository.getObjectByID(Repository.COMMITS_DIR,
-                readContentsAsString(join(Repository.BRANCHES_DIR, currBranch)), Commit.class);
+                Repository.getCurrCommit().getId(), Commit.class);
         Commit checkoutCommit = Repository.getObjectByID(Repository.COMMITS_DIR,
-                readContentsAsString(join(Repository.BRANCHES_DIR, checkoutBranch)), Commit.class);
+                ID, Commit.class);
+        if (checkoutCommit == null) {
+            Main.printError(ErrorMessage.NON_EXISTING_COMMIT_WITH_ID.getMessage());
+        }
         /* Check if there are untracked files. */
         for (File file: Repository.CWD.listFiles()) {
             if (checkoutCommit.containFile(file) && !currCommit.containFile(file)) {
@@ -202,20 +214,12 @@ class Commands {
             }
         }
         /* Overwrite or add files in checkout branch. */
-        for (String ID: checkoutCommit.getBlobs().values()) {
-            Blob newBlob = Repository.getObjectByID(Repository.BLOBS_DIR, ID, Blob.class);
+        for (String blobID: checkoutCommit.getBlobs().values()) {
+            Blob newBlob = Repository.getObjectByID(Repository.BLOBS_DIR, blobID, Blob.class);
             newBlob.backIntoFile();
         }
         /* Clear the stagedArea. */
         Repository.clearStagedArea();
-        /* Change HEAD. */
-        Repository.moveHead(checkoutBranch);
-    }
-    /** Checkout to specific commit.
-     *  Remember there will never be in a detached head state,
-     *  so move the branch with head together. */
-    static void checkoutToCommit(String ID) {
-
     }
     /** Create a new branch and do not move head. */
     static void createBranch(String newBranch) {
@@ -234,5 +238,11 @@ class Commands {
             Main.printError(ErrorMessage.CURRENT_BRANCH_REMOVE_ABORTED.getMessage());
         }
         join(Repository.BRANCHES_DIR, branchName).delete();
+    }
+    /** Change the version to a specific commit. What's important is that
+     *  this method will move the branch and head together. */
+    static void reset(String ID) {
+        checkoutToCommit(ID);
+        Repository.SwitchAddBranch(Repository.getCurrBranch(), ID);
     }
 }

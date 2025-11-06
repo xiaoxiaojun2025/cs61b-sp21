@@ -9,7 +9,7 @@ public class Main {
      *  <COMMAND> <OPERAND1> <OPERAND2> ... 
      */
     public static void main(String[] args) {
-        if (args.length == 0) {
+        if (args.length < 1) {
             printError(ErrorMessage.NON_ARGUMENT.getMessage());
         }
         String firstArg = args[0];
@@ -61,7 +61,7 @@ public class Main {
                     /* Case 1 */
                     Commands.checkout(args[2]);
                 } else {
-                    if (args.length < 3 || (args.length >= 3 && args[2].equals("--"))) {
+                    if (args.length < 3 || (args.length >= 3 && !args[2].equals("--"))) {
                         /* Case 3 */
                         Commands.checkoutToBranch(args[1]);
                     } else {
@@ -84,6 +84,14 @@ public class Main {
                     printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
                 }
                 Commands.removeBranch(args[1]);
+                break;
+            case "reset":
+                if (args.length < 2) {
+                    printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
+                }
+                Commands.reset(args[1]);
+                break;
+            case "merge":
                 break;
 
 
