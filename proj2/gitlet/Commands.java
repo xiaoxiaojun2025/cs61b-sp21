@@ -1,7 +1,7 @@
 package gitlet;
 
 import java.io.File;
-import java.util.Map;
+import java.util.*;
 
 import static gitlet.Utils.*;
 /** The main class processing command line commands. */
@@ -82,8 +82,7 @@ class Commands {
             }
         }
         /* Add to the REMOVAL if the file is tracked. */
-        Commit currCommit = Repository.getCurrCommit();
-        if (currCommit.containFilename(filename)) {
+        if (!Repository.isFileUntrackedInCommit(filename)) {
             writeContents(join(Repository.REMOVAL, filename));
             /* Delete the file. */
             restrictedDelete(join(Repository.CWD, filename));
@@ -148,11 +147,53 @@ class Commands {
         }
         System.out.println();
         /* Print others. */
+        statusEC();
+    }
+    /** Help deal with untracked files and modified but not staged files. */
+    private static void statusEC() {
+        Set<String> untrackedFiles = new TreeSet<>();
+        Set<String> modifiedButNotStagedFiles = new TreeSet<>();
+        Commit currCommit = Repository.getCurrCommit();
+        /* modified */
+        for (String filename: plainFilenamesIn(Repository.CWD)) {
+            if (Repository.isFileUntracked(filename)) {
+                untrackedFiles.add(filename);
+            }
+            File cwdFile = join(Repository.CWD, filename);
+            String cwdFileID = new Blob(cwdFile).getId();
+            File addFile = join(Repository.ADDITION, filename);
+            if (addFile.exists()) {
+                if (!cwdFileID.equals(readContentsAsString(addFile))) {
+                    modifiedButNotStagedFiles.add(filename + " (modified)");
+                }
+            } else {
+                if (currCommit.containFilename(filename) && !currCommit.getBlobByFileName(filename).equals(cwdFileID)) {
+                    modifiedButNotStagedFiles.add(filename + " (modified)");
+                }
+            }
+        }
+        /* deleted */
+        for (String filename: plainFilenamesIn(Repository.ADDITION)) {
+            if (!join(Repository.CWD, filename).exists()) {
+                modifiedButNotStagedFiles.add(filename + " (deleted)");
+            }
+        }
+        for (String filename: currCommit.getBlobs().keySet()) {
+            if (!join(Repository.REMOVAL, filename).exists() && !join(Repository.CWD, filename).exists()) {
+                modifiedButNotStagedFiles.add(filename + " (deleted)");
+            }
+        }
+        /* Print */
         System.out.println("=== Modifications Not Staged For Commit ===");
+        for (String string: modifiedButNotStagedFiles) {
+            System.out.println(string);
+        }
         System.out.println();
         System.out.println("=== Untracked Files ===");
+        for (String string: untrackedFiles) {
+            System.out.println(string);
+        }
         System.out.println();
-
     }
     /** Change one file to the given commit.
      *  No influence to the stagedArea. */
@@ -202,15 +243,15 @@ class Commands {
             Main.printError(ErrorMessage.NON_EXISTING_COMMIT_WITH_ID.getMessage());
         }
         /* Check if there are untracked files. */
-        for (File file: Repository.CWD.listFiles()) {
-            if (checkoutCommit.containFile(file) && !currCommit.containFile(file)) {
+        for (String filename: plainFilenamesIn(Repository.CWD)) {
+            if (Repository.isFileUntracked(filename)) {
                 Main.printError(ErrorMessage.UNTRACKED_FILE_EXISTS.getMessage());
             }
         }
         /* Delete files tracked in curr branch, not in checkout branch. */
-        for (File file: Repository.CWD.listFiles()) {
-            if (!checkoutCommit.containFile(file) && currCommit.containFile(file)) {
-                restrictedDelete(file);
+        for (String filename: plainFilenamesIn(Repository.CWD)) {
+            if (!checkoutCommit.containFilename(filename) && currCommit.containFilename(filename)) {
+                restrictedDelete(join(Repository.CWD, filename));
             }
         }
         /* Overwrite or add files in checkout branch. */

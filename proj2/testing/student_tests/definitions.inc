@@ -9,7 +9,5 @@ D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]
 D ARBLINE "[^\n]*(?=\n|\Z)"
 # Zero or more arbitrary full lines of text.
 D ARBLINES "(?:(?:.|\n)*(?:\n|\Z)|\A|\Z)"
-# At least one valid char, can have multiple lines.
-D NONEMPTY_ARBLINES "[\s\S]+?(?=\n|\Z)"
 # Exactly 40 chars, represent sha-1 value.
 D SHA "[A-Za-z0-9]{40}"

@@ -74,11 +74,8 @@ public class Commit implements Serializable {
         if (blobs == null || !blobs.containsKey(other.getFilename())) {return false;}
         return blobs.get(other.getFilename()).equals(other.getId());
     }
-    /** Check if the commit contains a given file. */
-    public boolean containFile(File file) {
-        return blobs != null && blobs.containsKey(file.getName());
-    }
     public String getBlobByFileName(String filename) {
+        if (blobs == null) {return null;}
         return blobs.get(filename);
     }
     /** Check if the commit contains a given filename. */

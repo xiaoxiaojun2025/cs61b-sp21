@@ -43,7 +43,7 @@ public class Repository {
     /** The branches dictory, a branch always points to the front of the commit. */
     public static final File BRANCHES_DIR = join(GITLET_DIR, "branches");
     /** Shortened length of sha-1 to be the dictionary of files of commits. */
-    public static final int SHORTENED_LENGTH = 6;
+    public static final int SHORTENED_LENGTH = 2;
     /** Default branch name. */
     public static final String DEFAULT_BRANCH = "master";
     /** Tell if the .gitlet has been built. */
@@ -131,5 +131,18 @@ public class Repository {
     static void SwitchAddBranch(String newBranch, String ID) {
         writeContents(join(BRANCHES_DIR, newBranch), ID);
     }
-
+    /** Check if a file is not in currCommit's list of filenames.
+     *  Return true if it's not in it. */
+    static boolean isFileUntrackedInCommit(String filename) {
+        Commit currCommit = Repository.getCurrCommit();
+        return !currCommit.containFilename(filename);
+    }
+    /** Check if a file is neither in currCommit's list of filenames
+     *  nor in ADDITION area, which is considered "Untracked File".
+     *  Return true if it's "Untracked File". */
+    static boolean isFileUntracked(String filename){
+        return join(Repository.CWD, filename).exists() &&
+                isFileUntrackedInCommit(filename) &&
+                !join(ADDITION, filename).exists();
+    }
 }
