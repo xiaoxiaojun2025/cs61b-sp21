@@ -340,14 +340,14 @@ class Commands {
         if (checkoutBranch.equals(currBranch)) {
             Main.printError(ErrorMessage.CANNOT_MERGE_ITSELF.getMessage());
         }
-        for (String file: plainFilenamesIn(Repository.CWD)) {
-            if (Repository.isFileUntracked(file)) {
-                Main.printError(ErrorMessage.UNTRACKED_FILE_EXISTS.getMessage());
-            }
-        }
         Commit checkoutCommit = Repository.getCommitByBranch(checkoutBranch);
         Commit currCommit = Repository.getCurrCommit();
         Commit splitPoint = Repository.findLatestCommonAncestor(currCommit, checkoutCommit);
+        for (String file: plainFilenamesIn(Repository.CWD)) {
+            if (Repository.isFileUntracked(file) && checkoutCommit.containFilename(file) && !checkoutCommit.getBlobByFileName(file).equals(splitPoint.getBlobByFileName(file))) {
+                Main.printError(ErrorMessage.UNTRACKED_FILE_EXISTS.getMessage());
+            }
+        }
         String currID = currCommit.getId();
         String checkoutID = checkoutCommit.getId();
         String splitID = splitPoint.getId();
