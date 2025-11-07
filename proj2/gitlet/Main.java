@@ -92,6 +92,10 @@ public class Main {
                 Commands.reset(args[1]);
                 break;
             case "merge":
+                if (args.length < 2) {
+                    printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
+                }
+                Commands.merge(args[1]);
                 break;
 
 

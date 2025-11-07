@@ -60,7 +60,19 @@ public enum ErrorMessage {
     /** If a branch with the given name does not exist. */
     NON_EXISTING_BRANCH_WITH_NAME("A branch with that name does not exist."),
     /** If you try to remove the branch you’re currently on. */
-    CURRENT_BRANCH_REMOVE_ABORTED("Cannot remove the current branch.");
+    CURRENT_BRANCH_REMOVE_ABORTED("Cannot remove the current branch."),
+
+    /* Error for MERGE command. */
+    /** If there are staged additions or removals present. */
+    CHANGES_UNCOMMITED("You have uncommitted changes."),
+    /** If a branch with the given name does not exist. */
+    BRANCH_WITH_NAME_NOT_EXISTING("A branch with that name does not exist."),
+    /**  If attempting to merge a branch with itself. */
+    CANNOT_MERGE_ITSELF("Cannot merge a branch with itself."),
+    /** if the merge encountered a conflict. */
+    MERGE_CONFLICT("Encountered a merge conflict.");
+
+
 
 
 

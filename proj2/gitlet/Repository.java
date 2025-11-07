@@ -1,7 +1,12 @@
 package gitlet;
 
+
 import java.io.File;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
 
 import static gitlet.Utils.*;
 
@@ -80,6 +85,14 @@ public class Repository {
             return getObjectByID(COMMITS_DIR, readContentsAsString(join(BRANCHES_DIR, currString)), Commit.class);
         }
     }
+    /** Check if a dictionary is empty. */
+    static boolean isDictionaryEmpty(File target) {
+        if (target == null || !target.exists() || !target.isDirectory()) {
+            return true;
+        }
+        String[] files = target.list();
+        return files == null || files.length == 0;
+    }
     /** Get a commit or blob by ID, which can be a shortened one but larger than SHORTENED_LENGTH. */
     static <T extends Serializable> T getObjectByID(File dic, String ID, Class<T> cls) {
         if (ID == null || ID.length() < SHORTENED_LENGTH || ID.length() > UID_LENGTH) {
@@ -97,6 +110,11 @@ public class Repository {
             }
         }
         return null;
+    }
+    /** Get a commit by branch name. */
+    static Commit getCommitByBranch(String branch) {
+        String commitID = readContentsAsString(join(Repository.BRANCHES_DIR, branch));
+        return getObjectByID(Repository.COMMITS_DIR, commitID, Commit.class);
     }
     /** Save a commit or blob to its dictionary. */
     static <T extends Serializable> void saveObject(File dic, String ID, T object) {
@@ -145,4 +163,33 @@ public class Repository {
                 isFileUntrackedInCommit(filename) &&
                 !join(ADDITION, filename).exists();
     }
+    /** Find the latest common ancestor of current branch and the given branch. */
+    static Commit findLatestCommonAncestor(Commit currCommit, Commit otherBranch) {
+        Map<String, Integer> map = new HashMap<>();
+        Queue<String> queue = new LinkedList<>();
+        String currID = currCommit.getId();
+        String otherID = otherBranch.getId();
+        queue.add(currID);
+        queue.add(otherID);
+        map.put(currID, 1);
+        map.put(otherID, 2);
+        while (!queue.isEmpty()) {
+            String currentId = queue.poll();
+            int currentSource = map.get(currentId);
+            Commit current = getObjectByID(Repository.COMMITS_DIR, currentId, Commit.class);
+            for (String parentID: current.getParents()) {
+                if (parentID == null) {
+                    continue;
+                }
+                if (!map.containsKey(parentID)) {
+                    map.put(parentID, currentSource);
+                    queue.add(parentID);
+                } else if (map.get(parentID) != currentSource){
+                    return getObjectByID(Repository.COMMITS_DIR, parentID, Commit.class);
+                }
+            }
+        }
+        return null;
+    }
+
 }

@@ -10,6 +10,9 @@ class Commands {
     /** Add exactly one file to staged area of ADDITION.
      *  the ADDITION stores the filenames. */
     static void add(String filename) {
+        if (!Repository.isGitletSetUp()) {
+            Main.printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+        }
         if (!Repository.isGitletSetUp()) {Main.printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());}
         File FileContent = join(Repository.CWD, filename);
         if (!FileContent.exists()) {Main.printError(ErrorMessage.NON_EXISTING_FILE.getMessage());}
@@ -31,14 +34,21 @@ class Commands {
      *  to overwrite, add or remove files to it ,then set it as the new commit.
      */
     static void commit(String message) {
+        commit(message, null);
+    }
+    /** Commit for merge. */
+    static void commit(String message, String secondParent) {
+        if (!Repository.isGitletSetUp()) {
+            Main.printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+        }
         if (!Repository.isGitletSetUp()) {Main.printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());}
         File addition = Repository.ADDITION;
         File removal = Repository.REMOVAL;
-        if (isDictionaryEmpty(addition) && isDictionaryEmpty(removal)) {
+        if (Repository.isDictionaryEmpty(addition) && Repository.isDictionaryEmpty(removal)) {
             Main.printError(ErrorMessage.NON_FILES_STAGED.getMessage());
         }
         Commit parent = Repository.getCurrCommit();
-        Commit newCommit = new Commit(message, parent);
+        Commit newCommit = new Commit(message, parent, secondParent);
         /* Overwrite or add files from stagedArea to commit. */
         for (File toBeAdded: Repository.ADDITION.listFiles()) {
             Blob newBlob = Repository.getObjectByID(Repository.BLOBS_DIR, readContentsAsString(toBeAdded), Blob.class);
@@ -63,18 +73,13 @@ class Commands {
 
 
     }
-    /** Check if a dictionary is empty. */
-    private static boolean isDictionaryEmpty(File target) {
-        if (target == null || !target.exists() || !target.isDirectory()) {
-            return true;
-        }
-        String[] files = target.list();
-        return files == null || files.length == 0;
-    }
     /** Remove the file from the working dictionary and
      *  stage it to the REMOVAL.
      */
     static void remove(String filename) {
+        if (!Repository.isGitletSetUp()) {
+            Main.printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+        }
         for (File file: Repository.ADDITION.listFiles()) {
             if (file.getName().equals(filename)) {
                 file.delete();
@@ -92,6 +97,9 @@ class Commands {
     }
     /** Print all commits from the HEAD follows parent1 to original commit. */
     static void log() {
+        if (!Repository.isGitletSetUp()) {
+            Main.printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+        }
         Commit currCommit = Repository.getCurrCommit();
         while (currCommit != null) {
             Commit.printCommit(currCommit);
@@ -100,6 +108,9 @@ class Commands {
     }
     /** Print all commits ever made with no specific order. */
     static void global_log() {
+        if (!Repository.isGitletSetUp()) {
+            Main.printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+        }
         for (File firstDic: Repository.COMMITS_DIR.listFiles()) {
             for (File file: firstDic.listFiles()) {
                 Commit currCommit = readObject(file, Commit.class);
@@ -109,6 +120,9 @@ class Commands {
     }
     /** Print commits with specific commit message, maybe contain multiple commits. */
     static void find(String commitMessage) {
+        if (!Repository.isGitletSetUp()) {
+            Main.printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+        }
         boolean found = false;
         for (File firstDic: Repository.COMMITS_DIR.listFiles()) {
             for (File target: firstDic.listFiles()) {
@@ -124,6 +138,9 @@ class Commands {
     /** Print all branches, the current branch, stagedArea files,
      * modifications but not staged for commit files, untracked files.  */
     static void status() {
+        if (!Repository.isGitletSetUp()) {
+            Main.printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+        }
         /* Print branches. */
         System.out.println("=== Branches ===");
         String currBranch = Repository.getCurrBranch();
@@ -198,6 +215,9 @@ class Commands {
     /** Change one file to the given commit.
      *  No influence to the stagedArea. */
     static void checkout(String ID, String filename) {
+        if (!Repository.isGitletSetUp()) {
+            Main.printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+        }
         Commit targetCommit = Repository.getObjectByID(Repository.COMMITS_DIR, ID, Commit.class);
         if (targetCommit == null) {
             Main.printError(ErrorMessage.NON_EXISTING_COMMIT_WITH_ID.getMessage());
@@ -218,6 +238,9 @@ class Commands {
     }
     /** Change all files in the CWD to the branch version. */
     static void checkoutToBranch(String checkoutBranch) {
+        if (!Repository.isGitletSetUp()) {
+            Main.printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+        }
         if (!join(Repository.BRANCHES_DIR, checkoutBranch).exists()) {
             Main.printError(ErrorMessage.NON_EXISTING_BRANCH.getMessage());
         }
@@ -230,10 +253,18 @@ class Commands {
         /* Change HEAD. */
         Repository.moveHead(checkoutBranch);
     }
+    /** Change one file to the given branch. */
+    private static void checkoutOneFileToBranch(String checkoutBranch, String filename) {
+        String targetID = readContentsAsString(join(Repository.BRANCHES_DIR, checkoutBranch));
+        checkout(targetID, filename);
+    }
     /** Checkout to specific commit.
      *  Remember there will never be in a detached head state,
      *  but this method won't move pointer directly, should be used with other methods.  */
     private static void checkoutToCommit(String ID) {
+        if (!Repository.isGitletSetUp()) {
+            Main.printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+        }
         /* Get commits. */
         Commit currCommit = Repository.getObjectByID(Repository.COMMITS_DIR,
                 Repository.getCurrCommit().getId(), Commit.class);
@@ -264,6 +295,9 @@ class Commands {
     }
     /** Create a new branch and do not move head. */
     static void createBranch(String newBranch) {
+        if (!Repository.isGitletSetUp()) {
+            Main.printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+        }
         if (join(Repository.BRANCHES_DIR, newBranch).exists()) {
             Main.printError(ErrorMessage.ALREADY_EXISTING_BRANCH.getMessage());
         }
@@ -272,6 +306,9 @@ class Commands {
     }
     /** Remove a branch. */
     static void removeBranch(String branchName) {
+        if (!Repository.isGitletSetUp()) {
+            Main.printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+        }
         if (!join(Repository.BRANCHES_DIR, branchName).exists()) {
             Main.printError(ErrorMessage.NON_EXISTING_BRANCH_WITH_NAME.getMessage());
         }
@@ -285,5 +322,87 @@ class Commands {
     static void reset(String ID) {
         checkoutToCommit(ID);
         Repository.SwitchAddBranch(Repository.getCurrBranch(), ID);
+    }
+    /** Merge not done yet. */
+    static void merge(String checkoutBranch) {
+        if (!Repository.isGitletSetUp()) {
+            Main.printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+        }
+        if (!Repository.isDictionaryEmpty(Repository.ADDITION) || !Repository.isDictionaryEmpty(Repository.REMOVAL)) {
+            Main.printError(ErrorMessage.CHANGES_UNCOMMITED.getMessage());
+        }
+        if (!join(Repository.BRANCHES_DIR, checkoutBranch).exists()) {
+            Main.printError(ErrorMessage.BRANCH_WITH_NAME_NOT_EXISTING.getMessage());
+        }
+        String currBranch = Repository.getCurrBranch();
+        if (checkoutBranch.equals(currBranch)) {
+            Main.printError(ErrorMessage.CANNOT_MERGE_ITSELF.getMessage());
+        }
+        for (String file: plainFilenamesIn(Repository.CWD)) {
+            if (Repository.isFileUntracked(file)) {
+                Main.printError(ErrorMessage.UNTRACKED_FILE_EXISTS.getMessage());
+            }
+        }
+        Commit checkoutCommit = Repository.getCommitByBranch(checkoutBranch);
+        Commit currCommit = Repository.getCurrCommit();
+        Commit splitPoint = Repository.findLatestCommonAncestor(currCommit, checkoutCommit);
+        String currID = currCommit.getId();
+        String checkoutID = checkoutCommit.getId();
+        String splitID = splitPoint.getId();
+        if (splitID.equals(checkoutID)) {
+            System.out.println("Given branch is an ancestor of the current branch.");
+            return;
+        }
+        if (splitID.equals(currID)) {
+            checkoutToCommit(checkoutID);
+            writeContents(join(Repository.BRANCHES_DIR, currBranch), checkoutID);
+            System.out.println("Current branch fast-forwarded.");
+            return;
+        }
+        Set<String> allfiles = new HashSet<>(currCommit.getBlobs().keySet());
+        allfiles.addAll(checkoutCommit.getBlobs().keySet());
+        allfiles.addAll(splitPoint.getBlobs().keySet());
+        boolean ifConflictHappens = false;
+        for (String file: allfiles) {
+            String currFileID = currCommit.getBlobByFileName(file);
+            String checkoutFileID = checkoutCommit.getBlobByFileName(file);
+            String splitFileID = splitPoint.getBlobByFileName(file);
+            if (splitFileID != null) {
+                /* 给定分支修改，当前分支未修改 → 检出给定分支版本并stage*/
+                if (!splitFileID.equals(checkoutFileID) && splitFileID.equals(currFileID)) {
+                    checkoutOneFileToBranch(checkoutBranch, file);
+                    add(file);
+                /* 以不同方式修改 */
+                } else if ((!splitFileID.equals(currFileID) && !splitFileID.equals(checkoutFileID)) &&
+                        ((currFileID != null && !currFileID.equals(checkoutFileID)) ||
+                        (checkoutFileID != null && !checkoutFileID.equals(currFileID)))){
+                    byte[] currentContent = currFileID == null ? new byte[0]: Repository.getObjectByID(Repository.BLOBS_DIR, currFileID, Blob.class).getContent();
+                    byte[] checkoutContent = checkoutFileID == null ? new byte[0]: Repository.getObjectByID(Repository.BLOBS_DIR, checkoutFileID, Blob.class).getContent();
+                    writeContents(join(Repository.CWD, file), "<<<<<<< HEAD\n", currentContent, "=======\n", checkoutContent, ">>>>>>>\n");
+                    add(file);
+                    ifConflictHappens = true;
+                }
+                /* 以相同方式修改，都删除，当前修改给定未修改, 不会有任何改变。*/
+            } else {
+                /* 任何不存在于拆分点且仅存在于给定分支中的文件都应检出并暂存。*/
+                if (currFileID == null && checkoutFileID != null) {
+                    checkout(checkoutID, file);
+                    add(file);
+                /* 冲突, 以不同方式修改。 */
+                } else if (currFileID != null && checkoutFileID != null && !currFileID.equals(checkoutFileID)){
+                    byte[] currentContent = Repository.getObjectByID(Repository.BLOBS_DIR, currFileID, Blob.class).getContent();
+                    byte[] checkoutContent = Repository.getObjectByID(Repository.BLOBS_DIR, checkoutFileID, Blob.class).getContent();
+                    writeContents(join(Repository.CWD, file), "<<<<<<< HEAD\n", currentContent, "=======\n", checkoutContent, ">>>>>>>\n");
+                    add(file);
+                    ifConflictHappens = true;
+                }
+                /* 拆分点不存在且仅存在于当前分支中的任何文件都应保持原样。
+                 *  或者二者都不存在或以相同方式修改, 不做出更改。*/
+            }
+        }
+        if (ifConflictHappens) {
+            System.out.println(ErrorMessage.MERGE_CONFLICT.getMessage());
+        }
+        commit(String.format("Merged %s into %s.", checkoutBranch, currBranch), checkoutID);
     }
 }

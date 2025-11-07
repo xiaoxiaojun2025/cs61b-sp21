@@ -1,6 +1,5 @@
 package gitlet;
 
-import java.io.File;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -55,6 +54,13 @@ public class Commit implements Serializable {
         blobs = parent1.getBlobs();
         timestamp = new Date();
     }
+    public Commit (String message, Commit parent1, String parent2) {
+        this.message = message;
+        this.parent1 = parent1.getId();
+        parent2 = parent2;
+        blobs = parent1.getBlobs();
+        timestamp = new Date();
+    }
     /** Constructor which create the very original commit.
      * 创建初始提交， 时间戳固定 */
     public Commit() {
@@ -95,6 +101,12 @@ public class Commit implements Serializable {
     public String getParent1() {return parent1;}
     /** Get the parent2 of the commit. */
     public String getParent2() {return parent2;}
+    public List<String> getParents() {
+        List<String> res = new LinkedList<>();
+        res.add(parent1);
+        res.add(parent2);
+        return res;
+    }
     /** Get formatted timestamp. */
     public String getFormattedTimestamp() {
         Instant instant = timestamp.toInstant();
