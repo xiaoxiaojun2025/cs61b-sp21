@@ -25,6 +25,9 @@ public class Main {
                 break;
             case "commit":
                 if (args.length < 2) {
+                    printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
+                }
+                if (args[1].isEmpty()) {
                     printError(ErrorMessage.NON_MESSAGE_COMMIT.getMessage());
                 }
                 Commands.commit(args[1]);
@@ -54,21 +57,17 @@ public class Main {
                 if (args.length < 2 ) {
                     printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
                 }
-                if (args[1].equals("--")) {
-                    if (args.length < 3) {
-                        printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
-                    }
-                    /* Case 1 */
+                /* Checkout to branch */
+                if (args.length == 2) {
+                    Commands.checkoutToBranch(args[1]);
+                /* Checkout one file to curr */
+                } else if (args[1].equals("--")) {
                     Commands.checkout(args[2]);
-                } else {
-                    if (args.length < 3 || (args.length >= 3 && !args[2].equals("--"))) {
-                        /* Case 3 */
-                        Commands.checkoutToBranch(args[1]);
+                } else if (args.length >= 4) {
+                    if (!args[2].equals("--")) {
+                        printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
                     } else {
-                        if (args.length < 4) {
-                            printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
-                        }
-                        /* Case 2 */
+                /* Checkout one file to given commit */
                         Commands.checkout(args[1], args[3]);
                     }
                 }

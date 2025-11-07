@@ -57,7 +57,7 @@ public class Commit implements Serializable {
     public Commit (String message, Commit parent1, String parent2) {
         this.message = message;
         this.parent1 = parent1.getId();
-        parent2 = parent2;
+        this.parent2 = parent2;
         blobs = parent1.getBlobs();
         timestamp = new Date();
     }
@@ -74,7 +74,7 @@ public class Commit implements Serializable {
     /** Get the message. */
     public String getMessage() {return message;}
     /** Get the blobs. */
-    public Map<String, String> getBlobs() {return blobs;}
+    public Map<String, String> getBlobs() {return blobs == null ? new HashMap<>(): blobs;}
     /** Check if the commit contains a given blob. */
     public boolean containBlob(Blob other) {
         if (blobs == null || !blobs.containsKey(other.getFilename())) {return false;}
@@ -121,10 +121,10 @@ public class Commit implements Serializable {
        System.out.println("===");
        String parent1 = commit.getParent1();
        String parent2 = commit.getParent2();
-       if (parent2 != null && parent1 != null) {
-           System.out.println("Merge: " + parent1.substring(0, 7) + parent2.substring(0, 7));
-       }
        System.out.println("commit " + commit.getId());
+        if (parent2 != null && parent1 != null) {
+            System.out.println("Merge: " + parent1.substring(0, 7) + " " + parent2.substring(0, 7));
+        }
        System.out.println("Date: " + commit.getFormattedTimestamp());
        System.out.println(commit.getMessage());
        System.out.println();

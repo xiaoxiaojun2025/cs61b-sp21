@@ -8,11 +8,9 @@ import static gitlet.Utils.*;
 class Commands {
 
     /** Add exactly one file to staged area of ADDITION.
-     *  the ADDITION stores the filenames. */
+     *  the ADDITION stores the filenames.
+     *  Add the file to Blob, remove it from REMOVAL if it exists there.*/
     static void add(String filename) {
-        if (!Repository.isGitletSetUp()) {
-            Main.printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
-        }
         if (!Repository.isGitletSetUp()) {Main.printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());}
         File FileContent = join(Repository.CWD, filename);
         if (!FileContent.exists()) {Main.printError(ErrorMessage.NON_EXISTING_FILE.getMessage());}
@@ -21,6 +19,8 @@ class Commands {
         String newId = newBlob.getId();
         /* To be added in BLOBS_DIR. */
         Repository.saveObject(Repository.BLOBS_DIR, newId, newBlob);
+        /* Remove it from REMOVAL */
+        join(Repository.REMOVAL, filename).delete();
         /* To be added in stagedArea. */
         File newFile = join(Repository.ADDITION, filename);
         if (Repository.getCurrCommit().containBlob(newBlob)) {
@@ -195,9 +195,11 @@ class Commands {
                 modifiedButNotStagedFiles.add(filename + " (deleted)");
             }
         }
-        for (String filename: currCommit.getBlobs().keySet()) {
-            if (!join(Repository.REMOVAL, filename).exists() && !join(Repository.CWD, filename).exists()) {
-                modifiedButNotStagedFiles.add(filename + " (deleted)");
+        if (currCommit.getBlobs() != null) {
+            for (String filename: currCommit.getBlobs().keySet()) {
+                if (!join(Repository.REMOVAL, filename).exists() && !join(Repository.CWD, filename).exists()) {
+                    modifiedButNotStagedFiles.add(filename + " (deleted)");
+                }
             }
         }
         /* Print */
@@ -275,7 +277,7 @@ class Commands {
         }
         /* Check if there are untracked files. */
         for (String filename: plainFilenamesIn(Repository.CWD)) {
-            if (Repository.isFileUntracked(filename)) {
+            if (Repository.isFileUntracked(filename) && checkoutCommit.containFilename(filename)) {
                 Main.printError(ErrorMessage.UNTRACKED_FILE_EXISTS.getMessage());
             }
         }
@@ -286,7 +288,7 @@ class Commands {
             }
         }
         /* Overwrite or add files in checkout branch. */
-        for (String blobID: checkoutCommit.getBlobs().values()) {
+        for (String blobID : checkoutCommit.getBlobs().values()) {
             Blob newBlob = Repository.getObjectByID(Repository.BLOBS_DIR, blobID, Blob.class);
             newBlob.backIntoFile();
         }
@@ -368,10 +370,13 @@ class Commands {
             String checkoutFileID = checkoutCommit.getBlobByFileName(file);
             String splitFileID = splitPoint.getBlobByFileName(file);
             if (splitFileID != null) {
-                /* 给定分支修改，当前分支未修改 → 检出给定分支版本并stage*/
-                if (!splitFileID.equals(checkoutFileID) && splitFileID.equals(currFileID)) {
+                /* 给定分支存在且修改，当前分支未修改 → 检出给定分支版本并stage*/
+                if (checkoutFileID != null && !splitFileID.equals(checkoutFileID) && splitFileID.equals(currFileID)) {
                     checkoutOneFileToBranch(checkoutBranch, file);
                     add(file);
+                /* 检出点存在，当前未改，给定不存在， 应删除并暂存 */
+                } else if(checkoutFileID == null && splitFileID.equals(currFileID)) {
+                    remove(file);
                 /* 以不同方式修改 */
                 } else if ((!splitFileID.equals(currFileID) && !splitFileID.equals(checkoutFileID)) &&
                         ((currFileID != null && !currFileID.equals(checkoutFileID)) ||
