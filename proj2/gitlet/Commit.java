@@ -9,8 +9,9 @@ import java.util.*;
 import static gitlet.Utils.*;
 
 /** Represents a gitlet commit object.
- *  TODO: It's a good idea to give a description here of what else this Class
- *  does at a high level.
+ *  该类定义单个提交，包括日志，时间戳，两个父提交的ID和对所有文件的引用
+ *  所有实例变量均未使用指针，以免序列化时时间复杂度提高，而是使用对象的ID
+ *  因此所有COMMIT都是内容可寻址的
  *
  *  @author ChenJinzhao
  */
@@ -80,6 +81,7 @@ public class Commit implements Serializable {
         if (blobs == null || !blobs.containsKey(other.getFilename())) {return false;}
         return blobs.get(other.getFilename()).equals(other.getId());
     }
+    /** Return a blob's ID by a filename. */
     public String getBlobByFileName(String filename) {
         if (blobs == null) {return null;}
         return blobs.get(filename);
@@ -101,6 +103,7 @@ public class Commit implements Serializable {
     public String getParent1() {return parent1;}
     /** Get the parent2 of the commit. */
     public String getParent2() {return parent2;}
+    /** Get all parents as a list. */
     public List<String> getParents() {
         List<String> res = new LinkedList<>();
         res.add(parent1);

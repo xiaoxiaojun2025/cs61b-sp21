@@ -20,7 +20,6 @@ import java.util.List;
 
 
 /** Assorted utilities.
- *
  * Give this file a good read as it provides several useful utility functions
  * to save you some time.
  *
@@ -32,7 +31,6 @@ class Utils {
     static final int UID_LENGTH = 40;
 
     /* SHA-1 HASH VALUES. */
-
     /** Returns the SHA-1 hash of the concatenation of VALS, which may
      *  be any mixture of byte arrays and Strings. */
     static String sha1(Object... vals) {

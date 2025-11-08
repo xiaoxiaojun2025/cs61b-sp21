@@ -10,10 +10,10 @@ import java.util.Queue;
 
 import static gitlet.Utils.*;
 
-
 /** Represents a gitlet repository.
- *  TODO: It's a good idea to give a description here of what else this Class
- *  does at a high level.
+ *  存储对所有可能使用到的子目录及文件的引用，实现很多对文件的IO方法
+ *  便于其他类直接对文件操作。实现对对象（COMMIT,BLOB）的管理，可以
+ *  根据需求读写对象。实现对分支指针，头指针的管理
  *
  *  @author ChenJinzhao
  */
@@ -158,7 +158,7 @@ public class Repository {
     /** Check if a file is neither in currCommit's list of filenames
      *  nor in ADDITION area, which is considered "Untracked File".
      *  Return true if it's "Untracked File". */
-    static boolean isFileUntracked(String filename){
+    static boolean isFileUntracked(String filename) {
         return join(Repository.CWD, filename).exists() &&
                 isFileUntrackedInCommit(filename) &&
                 !join(ADDITION, filename).exists();

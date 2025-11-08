@@ -1,5 +1,7 @@
 package gitlet;
 
+import static gitlet.Commands.*;
+
 /** Driver class for Gitlet, a subset of the Git version-control system.
  *  @author ChenJinZhao
  */
@@ -18,87 +20,120 @@ public class Main {
                 Repository.setUpPersistence();
                 break;
             case "add":
+                if (!Repository.isGitletSetUp()) {
+                    printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+                }
                 if (args.length < 2) {
                     printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
                 }
-                Commands.add(args[1]);
+                add(args[1]);
                 break;
             case "commit":
+                if (!Repository.isGitletSetUp()) {
+                    printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+                }
                 if (args.length < 2) {
                     printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
                 }
                 if (args[1].isEmpty()) {
                     printError(ErrorMessage.NON_MESSAGE_COMMIT.getMessage());
                 }
-                Commands.commit(args[1]);
+                commit(args[1]);
                 break;
             case "rm":
+                if (!Repository.isGitletSetUp()) {
+                    printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+                }
                 if (args.length < 2) {
                     printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
                 }
-                Commands.remove(args[1]);
+                remove(args[1]);
                 break;
             case "log":
-                Commands.log();
+                if (!Repository.isGitletSetUp()) {
+                    printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+                }
+                log();
                 break;
             case "global-log":
-                Commands.global_log();
+                if (!Repository.isGitletSetUp()) {
+                    printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+                }
+                global_log();
                 break;
             case "find":
+                if (!Repository.isGitletSetUp()) {
+                    printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+                }
                 if (args.length < 2) {
                     printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
                 }
-                Commands.find(args[1]);
+                find(args[1]);
                 break;
             case "status":
-                Commands.status();
+                if (!Repository.isGitletSetUp()) {
+                    printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+                }
+                status();
                 break;
             case "checkout":
+                if (!Repository.isGitletSetUp()) {
+                    printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+                }
                 if (args.length < 2 ) {
                     printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
                 }
                 /* Checkout to branch */
                 if (args.length == 2) {
-                    Commands.checkoutToBranch(args[1]);
+                    checkoutToBranch(args[1]);
                 /* Checkout one file to curr */
                 } else if (args[1].equals("--")) {
-                    Commands.checkout(args[2]);
+                    checkout(args[2]);
                 } else if (args.length >= 4) {
                     if (!args[2].equals("--")) {
                         printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
                     } else {
                 /* Checkout one file to given commit */
-                        Commands.checkout(args[1], args[3]);
+                        checkout(args[1], args[3]);
                     }
                 }
                 break;
             case "branch":
+                if (!Repository.isGitletSetUp()) {
+                    printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+                }
                 if (args.length < 2) {
                     printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
                 }
-                Commands.createBranch(args[1]);
+                createBranch(args[1]);
                 break;
             case "rm-branch":
+                if (!Repository.isGitletSetUp()) {
+                    printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+                }
                 if (args.length < 2) {
                     printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
                 }
-                Commands.removeBranch(args[1]);
+                removeBranch(args[1]);
                 break;
             case "reset":
+                if (!Repository.isGitletSetUp()) {
+                    printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+                }
                 if (args.length < 2) {
                     printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
                 }
-                Commands.reset(args[1]);
+                reset(args[1]);
                 break;
             case "merge":
+                if (!Repository.isGitletSetUp()) {
+                    printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+                }
                 if (args.length < 2) {
                     printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
                 }
-                Commands.merge(args[1]);
+                merge(args[1]);
                 break;
-
-
-
 
 
             default:
