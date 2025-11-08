@@ -1,6 +1,7 @@
 package gitlet;
 
 import static gitlet.Commands.*;
+import static gitlet.RemoteCommands.*;
 
 /** Driver class for Gitlet, a subset of the Git version-control system.
  *  @author ChenJinZhao
@@ -134,8 +135,51 @@ public class Main {
                 }
                 merge(args[1]);
                 break;
-
-
+            case "add-remote":
+                if (!Repository.isGitletSetUp()) {
+                    printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+                }
+                if (args.length < 3) {
+                    printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
+                }
+                addRemote(args[1], args[2]);
+                break;
+            case "rm-remote":
+                if (!Repository.isGitletSetUp()) {
+                    printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+                }
+                if (args.length < 2) {
+                    printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
+                }
+                removeRemote(args[1]);
+                break;
+            case "push":
+                if (!Repository.isGitletSetUp()) {
+                    printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+                }
+                if (args.length < 3) {
+                    printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
+                }
+                push(args[1], args[2]);
+                break;
+            case "fetch":
+                if (!Repository.isGitletSetUp()) {
+                    printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+                }
+                if (args.length < 3) {
+                    printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
+                }
+                fetch(args[1], args[2]);
+                break;
+            case "pull":
+                if (!Repository.isGitletSetUp()) {
+                    printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
+                }
+                if (args.length < 3) {
+                    printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
+                }
+                pull(args[1], args[2]);
+                break;
             default:
                 printError(ErrorMessage.NON_EXISTING_COMMAND.getMessage());
         }

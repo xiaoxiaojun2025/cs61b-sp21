@@ -45,8 +45,10 @@ public class Repository {
      *  with its content the name of branch.
      */
     public static final File HEAD = join(GITLET_DIR, "head");
-    /** The branches dictory, a branch always points to the front of the commit. */
+    /** The branches dictionary, a branch always points to the front of the commit. */
     public static final File BRANCHES_DIR = join(GITLET_DIR, "branches");
+    /** The dictionary saves the paths of other remote dictionaries. */
+    public static final File REMOTE_DIR = join(GITLET_DIR, "remotes");
     /** Shortened length of sha-1 to be the dictionary of files of commits. */
     public static final int SHORTENED_LENGTH = 2;
     /** Default branch name. */
@@ -69,6 +71,7 @@ public class Repository {
         BRANCHES_DIR.mkdir();
         ADDITION.mkdir();
         REMOVAL.mkdir();
+        REMOTE_DIR.mkdir();
         Commit origin = new Commit();
         String originId = origin.getId();
         saveObject(COMMITS_DIR, originId, origin);

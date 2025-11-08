@@ -70,7 +70,26 @@ public enum ErrorMessage {
     /**  If attempting to merge a branch with itself. */
     CANNOT_MERGE_ITSELF("Cannot merge a branch with itself."),
     /** if the merge encountered a conflict. */
-    MERGE_CONFLICT("Encountered a merge conflict.");
+    MERGE_CONFLICT("Encountered a merge conflict."),
+
+    /* Error for ADD-REMOTE command. */
+    /**  If a remote with the given name already exists. */
+    REMOTE_ALREADY_EXISTING("A remote with that name already exists."),
+
+    /* Error for RM-REMOTE command. */
+    /** If a remote with the given name does not exist. */
+    REMOTE_NON_EXISTING("A remote with that name does not exist."),
+
+    /* Error for PUSH command. */
+    /** If the remote .gitlet directory does not exist. */
+    REMOTE_DICTIONARY_NOT_FOUND("Remote directory not found."),
+    /** If the remote branch’s head is not in the history of the current local head. */
+    REMOTE_HEAD_NOT_IN_CURR("Please pull down remote changes before pushing."),
+
+    /* Error for FETCH command. */
+    /** If the remote Gitlet repository does not have the given branch name. */
+    REMOTE_BRANCH_NOT_EXISTING("That remote does not have that branch.");
+
 
 
 
