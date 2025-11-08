@@ -3,20 +3,23 @@ package gitlet;
 import static gitlet.Commands.*;
 import static gitlet.RemoteCommands.*;
 
-/** Driver class for Gitlet, a subset of the Git version-control system.
- *  @author ChenJinZhao
+/**
+ * Driver class for Gitlet, a subset of the Git version-control system.
+ *
+ * @author ChenJinZhao
  */
 public class Main {
 
-    /** Usage: java gitlet.Main ARGS, where ARGS contains
-     *  <COMMAND> <OPERAND1> <OPERAND2> ... 
+    /**
+     * Usage: java gitlet.Main ARGS, where ARGS contains
+     * <COMMAND> <OPERAND1> <OPERAND2> ...
      */
     public static void main(String[] args) {
         if (args.length < 1) {
             printError(ErrorMessage.NON_ARGUMENT.getMessage());
         }
         String firstArg = args[0];
-        switch(firstArg) {
+        switch (firstArg) {
             case "init":
                 Repository.setUpPersistence();
                 break;
@@ -81,20 +84,20 @@ public class Main {
                 if (!Repository.isGitletSetUp()) {
                     printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
                 }
-                if (args.length < 2 ) {
+                if (args.length < 2) {
                     printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
                 }
                 /* Checkout to branch */
                 if (args.length == 2) {
                     checkoutToBranch(args[1]);
-                /* Checkout one file to curr */
+                    /* Checkout one file to curr */
                 } else if (args[1].equals("--")) {
                     checkout(args[2]);
                 } else if (args.length >= 4) {
                     if (!args[2].equals("--")) {
                         printError(ErrorMessage.INCORRECT_OPERANDS.getMessage());
                     } else {
-                /* Checkout one file to given commit */
+                        /* Checkout one file to given commit */
                         checkout(args[1], args[3]);
                     }
                 }
@@ -184,7 +187,10 @@ public class Main {
                 printError(ErrorMessage.NON_EXISTING_COMMAND.getMessage());
         }
     }
-    /** Print the error message and exit the program. */
+
+    /**
+     * Print the error message and exit the program.
+     */
     static void printError(String message) {
         System.out.println(message);
         System.exit(0);

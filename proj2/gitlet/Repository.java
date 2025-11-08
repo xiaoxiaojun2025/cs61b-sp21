@@ -10,12 +10,13 @@ import java.util.Queue;
 
 import static gitlet.Utils.*;
 
-/** Represents a gitlet repository.
- *  存储对所有可能使用到的子目录及文件的引用，实现很多对文件的IO方法
- *  便于其他类直接对文件操作。实现对对象（COMMIT,BLOB）的管理，可以
- *  根据需求读写对象。实现对分支指针，头指针的管理
+/**
+ * Represents a gitlet repository.
+ * 存储对所有可能使用到的子目录及文件的引用，实现很多对文件的IO方法
+ * 便于其他类直接对文件操作。实现对对象（COMMIT,BLOB）的管理，可以
+ * 根据需求读写对象。实现对分支指针，头指针的管理
  *
- *  @author ChenJinzhao
+ * @author ChenJinzhao
  */
 public class Repository {
     /**
@@ -24,41 +25,69 @@ public class Repository {
      * comment above them describing what that variable represents and how that
      * variable is used. We've provided two examples for you.
      */
-    
-    /** The current working directory. */
+
+    /**
+     * The current working directory.
+     */
     public static final File CWD = new File(System.getProperty("user.dir"));
-    /** The .gitlet directory. */
+    /**
+     * The .gitlet directory.
+     */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
-    /** The dictionary contains different blobs refer to files.
-     *  Each file's name is sha1 and content is byte array. */
+    /**
+     * The dictionary contains different blobs refer to files.
+     * Each file's name is sha1 and content is byte array.
+     */
     public static final File BLOBS_DIR = join(GITLET_DIR, "blobs");
-    /** The staging area dictionary. */
+    /**
+     * The staging area dictionary.
+     */
     public static final File STAGED_AREA = join(GITLET_DIR, "stagedArea");
-    /** The area storing the blobs from command "add". */
+    /**
+     * The area storing the blobs from command "add".
+     */
     public static final File ADDITION = join(STAGED_AREA, "addition");
-    /** The area storing the blobs from command "rm". */
+    /**
+     * The area storing the blobs from command "rm".
+     */
     public static final File REMOVAL = join(STAGED_AREA, "removal");
-    /** The dictionary contains commits.
-     *  Each file's name is sha1 and content is byte array. */
+    /**
+     * The dictionary contains commits.
+     * Each file's name is sha1 and content is byte array.
+     */
     public static final File COMMITS_DIR = join(GITLET_DIR, "commits");
-    /** The HEAD pointer points to the current branch, here, it's a file
-     *  with its content the name of branch.
+    /**
+     * The HEAD pointer points to the current branch, here, it's a file
+     * with its content the name of branch.
      */
     public static final File HEAD = join(GITLET_DIR, "head");
-    /** The branches dictionary, a branch always points to the front of the commit. */
+    /**
+     * The branches dictionary, a branch always points to the front of the commit.
+     */
     public static final File BRANCHES_DIR = join(GITLET_DIR, "branches");
-    /** The dictionary saves the paths of other remote dictionaries. */
+    /**
+     * The dictionary saves the paths of other remote dictionaries.
+     */
     public static final File REMOTE_DIR = join(GITLET_DIR, "remotes");
-    /** Shortened length of sha-1 to be the dictionary of files of commits. */
+    /**
+     * Shortened length of sha-1 to be the dictionary of files of commits.
+     */
     public static final int SHORTENED_LENGTH = 2;
-    /** Default branch name. */
+    /**
+     * Default branch name.
+     */
     public static final String DEFAULT_BRANCH = "master";
-    /** Tell if the .gitlet has been built. */
+
+    /**
+     * Tell if the .gitlet has been built.
+     */
     public static boolean isGitletSetUp() {
         return GITLET_DIR.exists();
     }
-    /** Init a new .gitlet dictionary in pwd.
-     *  If .gitlet exists, it will do nothing.
+
+    /**
+     * Init a new .gitlet dictionary in pwd.
+     * If .gitlet exists, it will do nothing.
      */
     static void setUpPersistence() {
         if (isGitletSetUp()) {
@@ -78,7 +107,10 @@ public class Repository {
         moveHead(DEFAULT_BRANCH);
         SwitchAddBranch(DEFAULT_BRANCH, originId);
     }
-    /** Get the current commit or other words the HEAD pointer. */
+
+    /**
+     * Get the current commit or other words the HEAD pointer.
+     */
     static Commit getCurrCommit() {
         String currString = readContentsAsString(HEAD);
         File target = join(BRANCHES_DIR, currString);
@@ -88,7 +120,10 @@ public class Repository {
             return getObjectByID(COMMITS_DIR, readContentsAsString(join(BRANCHES_DIR, currString)), Commit.class);
         }
     }
-    /** Check if a dictionary is empty. */
+
+    /**
+     * Check if a dictionary is empty.
+     */
     static boolean isDictionaryEmpty(File target) {
         if (target == null || !target.exists() || !target.isDirectory()) {
             return true;
@@ -96,7 +131,10 @@ public class Repository {
         String[] files = target.list();
         return files == null || files.length == 0;
     }
-    /** Get a commit or blob by ID, which can be a shortened one but larger than SHORTENED_LENGTH. */
+
+    /**
+     * Get a commit or blob by ID, which can be a shortened one but larger than SHORTENED_LENGTH.
+     */
     static <T extends Serializable> T getObjectByID(File dic, String ID, Class<T> cls) {
         if (ID == null || ID.length() < SHORTENED_LENGTH || ID.length() > UID_LENGTH) {
             return null;
@@ -107,66 +145,93 @@ public class Repository {
         if (!firstDir.exists() || !firstDir.isDirectory()) {
             return null;
         }
-        for (File file: firstDir.listFiles()) {
+        for (File file : firstDir.listFiles()) {
             if (file.getName().startsWith(restString)) {
                 return readObject(file, cls);
             }
         }
         return null;
     }
-    /** Get a commit by branch name. */
+
+    /**
+     * Get a commit by branch name.
+     */
     static Commit getCommitByBranch(String branch) {
         String commitID = readContentsAsString(join(Repository.BRANCHES_DIR, branch));
         return getObjectByID(Repository.COMMITS_DIR, commitID, Commit.class);
     }
-    /** Save a commit or blob to its dictionary. */
+
+    /**
+     * Save a commit or blob to its dictionary.
+     */
     static <T extends Serializable> void saveObject(File dic, String ID, T object) {
         String dicString = ID.substring(0, SHORTENED_LENGTH);
         String restString = ID.substring(SHORTENED_LENGTH);
         File firstDic = join(dic, dicString);
-        if (!firstDic.exists()) {firstDic.mkdir();}
+        if (!firstDic.exists()) {
+            firstDic.mkdir();
+        }
         writeObject(join(firstDic, restString), object);
     }
-    /** Move the HEAD pointer. */
+
+    /**
+     * Move the HEAD pointer.
+     */
     static void moveHead(String newHead) {
         writeContents(HEAD, newHead);
     }
-    /** Remove everything from the stagedArea. */
+
+    /**
+     * Remove everything from the stagedArea.
+     */
     static void clearStagedArea() {
-        for (File file: Repository.ADDITION.listFiles()) {
+        for (File file : Repository.ADDITION.listFiles()) {
             file.delete();
         }
-        for (File file: Repository.REMOVAL.listFiles()) {
+        for (File file : Repository.REMOVAL.listFiles()) {
             file.delete();
         }
     }
-    /** Get current branch.
-     *  And return null if head is detched, which will not happen normally. */
+
+    /**
+     * Get current branch.
+     * And return null if head is detched, which will not happen normally.
+     */
     static String getCurrBranch() {
         if (!join(BRANCHES_DIR, readContentsAsString(HEAD)).exists()) {
             return null;
         }
         return readContentsAsString(HEAD);
     }
-    /** Add a new branch or switch the current branch. */
+
+    /**
+     * Add a new branch or switch the current branch.
+     */
     static void SwitchAddBranch(String newBranch, String ID) {
         writeContents(join(BRANCHES_DIR, newBranch), ID);
     }
-    /** Check if a file is not in currCommit's list of filenames.
-     *  Return true if it's not in it. */
+
+    /**
+     * Check if a file is not in currCommit's list of filenames.
+     * Return true if it's not in it.
+     */
     static boolean isFileUntrackedInCommit(String filename) {
         Commit currCommit = Repository.getCurrCommit();
         return !currCommit.containFilename(filename);
     }
-    /** Check if a file is neither in currCommit's list of filenames
-     *  nor in ADDITION area, which is considered "Untracked File".
-     *  Return true if it's "Untracked File". */
+
+    /**
+     * Check if a file is neither in currCommit's list of filenames
+     * nor in ADDITION area, which is considered "Untracked File".
+     * Return true if it's "Untracked File".
+     */
     static boolean isFileUntracked(String filename) {
-        return join(Repository.CWD, filename).exists() &&
-                isFileUntrackedInCommit(filename) &&
-                !join(ADDITION, filename).exists();
+        return join(Repository.CWD, filename).exists() && isFileUntrackedInCommit(filename) && !join(ADDITION, filename).exists();
     }
-    /** Find the latest common ancestor of current branch and the given branch. */
+
+    /**
+     * Find the latest common ancestor of current branch and the given branch.
+     */
     static Commit findLatestCommonAncestor(Commit currCommit, Commit otherBranch) {
         Map<String, Integer> map = new HashMap<>();
         Queue<String> queue = new LinkedList<>();
@@ -180,14 +245,14 @@ public class Repository {
             String currentId = queue.poll();
             int currentSource = map.get(currentId);
             Commit current = getObjectByID(Repository.COMMITS_DIR, currentId, Commit.class);
-            for (String parentID: current.getParents()) {
+            for (String parentID : current.getParents()) {
                 if (parentID == null) {
                     continue;
                 }
                 if (!map.containsKey(parentID)) {
                     map.put(parentID, currentSource);
                     queue.add(parentID);
-                } else if (map.get(parentID) != currentSource){
+                } else if (map.get(parentID) != currentSource) {
                     return getObjectByID(Repository.COMMITS_DIR, parentID, Commit.class);
                 }
             }

@@ -5,14 +5,15 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
 
+import static gitlet.Commands.merge;
 import static gitlet.Utils.*;
-import static gitlet.Commands.*;
 import static java.io.File.separator;
 
 
-
 class RemoteCommands {
-    /** Add a new remote to local repository. */
+    /**
+     * Add a new remote to local repository.
+     */
     static void addRemote(String remoteName, String path) {
         File target = join(Repository.REMOTE_DIR, remoteName);
         if (target.exists()) {
@@ -29,7 +30,10 @@ class RemoteCommands {
         }
         writeContents(target, resultPath.toString());
     }
-    /** Remove a remote from the local repository. */
+
+    /**
+     * Remove a remote from the local repository.
+     */
     static void removeRemote(String remoteName) {
         File target = join(Repository.REMOTE_DIR, remoteName);
         if (!target.exists()) {
@@ -37,8 +41,11 @@ class RemoteCommands {
         }
         target.delete();
     }
-    /** Add all commits from current branch head to the same commit
-     *  as the remote branch head to the front of remote branch. */
+
+    /**
+     * Add all commits from current branch head to the same commit
+     * as the remote branch head to the front of remote branch.
+     */
     static void push(String remoteName, String remoteBranchName) {
         RemoteRepository remoteRepository = new RemoteRepository(readContentsAsString(join(Repository.REMOTE_DIR, remoteName)));
         if (!join(remoteRepository.BRANCHES_DIR, remoteBranchName).exists()) {
@@ -63,7 +70,7 @@ class RemoteCommands {
         }
         while (!stack.empty()) {
             Commit topCommit = stack.peek();
-            for (String blobID: topCommit.getBlobs().values()) {
+            for (String blobID : topCommit.getBlobs().values()) {
                 Blob blobToBeAdded = Repository.getObjectByID(Repository.BLOBS_DIR, blobID, Blob.class);
                 Repository.saveObject(remoteRepository.BLOBS_DIR, blobID, blobToBeAdded);
             }
@@ -74,8 +81,9 @@ class RemoteCommands {
     }
 
 
-    /** Get all commits from the remote branch head to initial commit to
-     *  local repository, and overwrite or add remote branch to local.
+    /**
+     * Get all commits from the remote branch head to initial commit to
+     * local repository, and overwrite or add remote branch to local.
      */
     static void fetch(String remoteName, String remoteBranchName) {
         RemoteRepository remoteRepository = new RemoteRepository(readContentsAsString(join(Repository.REMOTE_DIR, remoteName)));
@@ -89,12 +97,13 @@ class RemoteCommands {
             /* 当前提交和所有文件保存 */
             Commit frontCommit = queue.poll();
             String frontCommitID = frontCommit.getId();
-            Repository.saveObject(Repository.COMMITS_DIR, frontCommitID, Commit.class);
-            for (String blobID: frontCommit.getBlobs().values()) {
-                Repository.saveObject(Repository.BLOBS_DIR, blobID, Blob.class);
+            Repository.saveObject(Repository.COMMITS_DIR, frontCommitID, frontCommit);
+            for (String blobID : frontCommit.getBlobs().values()) {
+                Blob newBlob = Repository.getObjectByID(remoteRepository.BLOBS_DIR, blobID, Blob.class);
+                Repository.saveObject(Repository.BLOBS_DIR, blobID, newBlob);
             }
             /* 父提交入队 */
-            for (String parentID: frontCommit.getParents()) {
+            for (String parentID : frontCommit.getParents()) {
                 if (parentID == null) {
                     continue;
                 }
@@ -102,10 +111,14 @@ class RemoteCommands {
             }
         }
         /* 创建新分支 */
-        Repository.SwitchAddBranch(remoteName + "/" + remoteBranchName, currRemoteCommit.getId());
+        File newBranchDic = join(Repository.BRANCHES_DIR, remoteName);
+        newBranchDic.mkdir();
+        writeContents(join(newBranchDic, remoteBranchName), currRemoteCommit.getId());
     }
-    /** A mixture of one fetch and one merge of the fetched branch and
-     *  current branch.
+
+    /**
+     * A mixture of one fetch and one merge of the fetched branch and
+     * current branch.
      */
     static void pull(String remoteName, String remoteBranchName) {
         fetch(remoteName, remoteBranchName);
