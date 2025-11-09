@@ -4,8 +4,11 @@ import java.io.File;
 
 import static gitlet.Utils.*;
 
-/**
- *
+/** 
+ * Represent a remote repository.
+ * 表示一个远程仓库类，由于此项目的远程仓库是用本地文件夹模拟的
+ * 因此该类拥有对远程仓库与Repository相同的目录结构
+ * 也有类似的方法，以便于对远程仓库的文件读写
  * @author ChenJinzhao
  */
 public class RemoteRepository {

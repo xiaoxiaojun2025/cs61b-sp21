@@ -66,11 +66,15 @@ Commands类和Repository类的方法，自身不会实现任何命令，若
 
 分支目录，存放所有创建的分支
 
-10. `public static final int SHORTENED_LENGTH = 2`
+10. `public static final File REMOTE_DIR = join(GITLET_DIR, "remotes")`
+
+存储远程仓库的目录
+
+11. `public static final int SHORTENED_LENGTH = 2`
 
 存储commit和blob时的最短目录长度
 
-11. `public static final String DEFAULT_BRANCH = "master"`默认分支名
+12. `public static final String DEFAULT_BRANCH = "master"`默认分支名
 
 #### 重要方法
 
@@ -201,13 +205,68 @@ Commands类和Repository类的方法，自身不会实现任何命令，若
 这被称为冲突，会将当前和给定以及冲突标识都写入文件并在终端打印冲突提示
 7.其余情况都应什么都不做，保持当前状态。
 
+### RemoteRepository类
+表示一个远程仓库类，由于此项目的远程仓库是用本地文件夹模拟的
+因此该类拥有对远程仓库与Repository相同的目录结构
+也有类似的方法，以便于对远程仓库的文件读写
+
+#### 字段
+1. `private final String path`
+
+远程仓库的路径（这里实际上是本地路径）
+
+2. `File GITLET_DIR`  
+
+远程仓库的持久化目录路径引用
+
+3. `File COMMITS_DIR`
+
+提交目录路径引用
+
+4. `File BLOBS_DIR`
+
+文件对象目录路径引用
+
+5. `File HEAD`
+
+头指针
+
+6. `File BRANCHES_DIR`
+
+分支目录路径引用
+
 ### RemoteCommands类
 
 #### 字段
 
-没有字段
+没有字段，该类只有静态方法
 
 #### 重要方法
+
+1. `static void addRemote(String remoteName, String path)`
+
+将一个新的远程仓库加入本地记录，由于这是模拟远程
+所以传入的路径仍是本地路径，需要包含.gitlet
+
+2. `static void removeRemote(String remoteName)`
+
+将一个远程从本地记录移除
+
+3. `static void push(String remoteName, String remoteBranchName)`
+
+根据给定的远程分支头提交，从本地当前头提交回溯查找历史记录是否有该给定提交，
+若未找到则推送失败，否则把从查找位置到当前头提交的所有提交（和文件）全部复制到远程分支头
+并更新远程分支头。
+
+4. `static void fetch(String remoteName, String remoteBranchName)`
+
+从远程分支头开始直到最初提交，获取所有本地不存在的提交（和文件）加入本地，
+并创建新本地名为【远程名】/【远程分支】的分支，该操作与push是类似的，只是方向相反。
+
+5. `static void pull(String remoteName, String remoteBranchName)`
+
+fetch和merge命令的结合。先用fetch获取提交和文件，以及一个新分支
+再将这个新分支合并到当前本地分支
 
 ### Utils类
 
@@ -237,9 +296,11 @@ Commands类和Repository类的方法，自身不会实现任何命令，若
    字段中未使用任何指针，而用父提交的ID代替指针，用哈希表（文件名-blobID键值对）代替对文件的指针
    以此降低计算对应指针带来的额外时间开销。因此，对于在给定时间和给定日志的提交，在任何计算机上该
    提交始终拥有相同的ID，以此来实现commit和blob对象的内容可寻址性
+
 2. 对于commit和blob对象的存储方式，采用分类在不同子目录，单文件以ID作为文件名，序列化内容为文件内容
    的方式。由于ID是40位，将其按照前两位字符再划分出一个子目录，即前两位相同的提交放在同一个子目录，防止父目录中
    文件过多。这样在文件数较少时会略微降低查找速度，而在文件数较多时能显著提高查找速度
+
 3. 合并操作中的一个重要方法：查找两提交的公共最近祖先
    首先明确，每个提交通过1-2个父ID查找父提交，这时整个提交结构变为有向无环图
 
@@ -250,6 +311,8 @@ Commands类和Repository类的方法，自身不会实现任何命令，若
 若队列为空还没有找到结果返回null（正常情况下不会发生）
 
 时间复杂度在最坏情况下为$O(N),n为提交数$
+
+4. 在远程操作中，push和fetch都采用BFS算法，由当前提交沿父提交距离当前提交层数逐层搜索
 
 ## 持久化设计
 
@@ -262,6 +325,10 @@ CWD                             <==== 工作目录
     └── branches                <==== 存放所有现存分支
         ├── master                
         ├── branch2
+        └── ...
+    └── remotes                <==== 存放远程仓库路径
+        ├── remote1              
+        ├── remote2
         └── ...
     └── stadgedArea              <==== 暂存区 
         └── addition             <==== 待添加区 
@@ -290,29 +357,30 @@ CWD                             <==== 工作目录
         └── ...           
 ```
 
-Repository类将会开启持久性，这包括创建.gitlet及大部分子目录和文件，。
+Repository类将会开启持久性，这包括创建.gitlet及大部分子目录和文件。
 
 这其中，head文件存储当前分支名，branches目录存放所有分支文件，
 这些分支文件内容是对应提交的ID；stagedArea目录下设addition和removal子目录，
-addition存放文件内容是对应Blob的ID, removal目录仅存放空文件以表示哪些文件要删除；
+addition存放文件内容是对应Blob的ID, removal目录仅存放空文件以表示哪些文件要删除
+remotes目录存储远程名及其路径。
 
 commits目录存放所有提交，这些提交文件名是其ID，且按照前两个字符分类子目录，
 文件内容是commit的序列化内容。仅通过commit命令和merge命令向该目录中添加文件
-永远不会删除文件
+永远不会删除文件。
 
 blobs目录与commits结构完全相同，文件名是blob的ID，内容是blob序列化内容
-仅通过add命令向该目录添加文件，永远不会删除文件
+仅通过add命令向该目录添加文件，永远不会删除文件。
 
 ## 其他
 
 ### 使用集成测试
 
 使用项目框架提供的tester.py脚本进行集成测试，自己编写大量测试.in文件
-对涉及命令进行测试
+对涉及命令进行测试。
 
 ### 使用远程JVM调试
 
 使用项目框架提供的runner.py脚本对单个测试文件进行调试，启用调试脚本建立连接后，
-使用idea中的远程JVM进行调试
+使用idea中的远程JVM进行调试。
 
 
