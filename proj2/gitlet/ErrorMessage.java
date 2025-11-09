@@ -29,8 +29,8 @@ public enum ErrorMessage {
      * abort.
      * It should NOT overwrite the existing system with a new one.
      */
-    GITLET_ALREADY_EXISTS("A Gitlet version-control system already exists in the current " +
-            "directory."),
+    GITLET_ALREADY_EXISTS("A Gitlet version-control system already exists in the current "
+            + "directory."),
 
     /* Error for ADD command. */
 
@@ -83,8 +83,8 @@ public enum ErrorMessage {
      * If a working file is untracked in the current branch and would be overwritten by the
      * checkout.
      */
-    UNTRACKED_FILE_EXISTS("There is an untracked file in the way; delete it, or add and commit it" +
-            " first."),
+    UNTRACKED_FILE_EXISTS("There is an untracked file in the way; delete it, or add and commit it"
+            + " first."),
 
     /* Error for BRANCH command. */
     /**

@@ -416,10 +416,9 @@ class Commands {
         Commit currCommit = Repository.getCurrCommit();
         Commit splitPoint = Repository.findLatestCommonAncestor(currCommit, checkoutCommit);
         for (String file : plainFilenamesIn(Repository.CWD)) {
-            if (Repository.isFileUntracked(file)
-                    && checkoutCommit.containFilename(file)
+            if (Repository.isFileUntracked(file) && checkoutCommit.containFilename(file)
                     && !checkoutCommit.getBlobByFileName(file).
-                            equals(splitPoint.getBlobByFileName(file))) {
+                    equals(splitPoint.getBlobByFileName(file))) {
                 Main.printError(ErrorMessage.UNTRACKED_FILE_EXISTS.getMessage());
             }
         }
@@ -455,8 +454,7 @@ class Commands {
                 } else if (checkoutFileID == null && splitFileID.equals(currFileID)) {
                     remove(file);
                     /* 以不同方式修改 */
-                } else if ((!splitFileID.equals(currFileID)
-                        && !splitFileID.equals(checkoutFileID))
+                } else if ((!splitFileID.equals(currFileID) && !splitFileID.equals(checkoutFileID))
                         && ((currFileID != null && !currFileID.equals(checkoutFileID))
                         || (checkoutFileID != null && !checkoutFileID.equals(currFileID)))) {
                     dealWithConflict(currFileID, checkoutFileID, file);
@@ -474,8 +472,7 @@ class Commands {
                     dealWithConflict(currFileID, checkoutFileID, file);
                     ifConflictHappens = true;
                 }
-                /* 拆分点不存在且仅存在于当前分支中的任何文件都应保持原样。
-                 *  或者二者都不存在或以相同方式修改, 不做出更改。*/
+                /* 拆分点不存在且仅存在于当前分支中的任何文件都应保持原样。或二者都不存在或以相同方式修改，不更改。*/
             }
         }
         if (ifConflictHappens) {
