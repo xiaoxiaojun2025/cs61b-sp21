@@ -47,9 +47,11 @@ class RemoteCommands {
      * as the remote branch head to the front of remote branch.
      */
     static void push(String remoteName, String remoteBranchName) {
-        RemoteRepository remoteRepository = new RemoteRepository(readContentsAsString(join(Repository.REMOTE_DIR, remoteName)));
+        RemoteRepository remoteRepository =
+                new RemoteRepository(readContentsAsString(join(Repository.REMOTE_DIR, remoteName)));
         if (!join(remoteRepository.BRANCHES_DIR, remoteBranchName).exists()) {
-            writeContents(join(remoteRepository.BRANCHES_DIR, remoteBranchName), remoteRepository.getCurrCommit().getId());
+            writeContents(join(remoteRepository.BRANCHES_DIR, remoteBranchName),
+                    remoteRepository.getCurrCommit().getId());
             return;
         }
         Commit splitCommit = remoteRepository.getCommitByBranch(remoteBranchName);
@@ -63,7 +65,8 @@ class RemoteCommands {
                 break;
             }
             stack.push(currCommit);
-            currCommit = Repository.getObjectByID(Repository.COMMITS_DIR, currCommit.getParent1(), Commit.class);
+            currCommit = Repository.getObjectByID(Repository.COMMITS_DIR, currCommit.getParent1()
+                    , Commit.class);
         }
         if (!found) {
             Main.printError(ErrorMessage.REMOTE_HEAD_NOT_IN_CURR.getMessage());
@@ -71,13 +74,14 @@ class RemoteCommands {
         while (!stack.empty()) {
             Commit topCommit = stack.peek();
             for (String blobID : topCommit.getBlobs().values()) {
-                Blob blobToBeAdded = Repository.getObjectByID(Repository.BLOBS_DIR, blobID, Blob.class);
+                Blob blobToBeAdded = Repository.getObjectByID(Repository.BLOBS_DIR, blobID,
+                        Blob.class);
                 Repository.saveObject(remoteRepository.BLOBS_DIR, blobID, blobToBeAdded);
             }
             Repository.saveObject(remoteRepository.COMMITS_DIR, topCommit.getId(), topCommit);
             stack.pop();
         }
-        remoteRepository.SwitchAddBranch(remoteBranchName, Repository.getCurrCommit().getId());
+        remoteRepository.switchAddBranch(remoteBranchName, Repository.getCurrCommit().getId());
     }
 
 
@@ -86,7 +90,8 @@ class RemoteCommands {
      * local repository, and overwrite or add remote branch to local.
      */
     static void fetch(String remoteName, String remoteBranchName) {
-        RemoteRepository remoteRepository = new RemoteRepository(readContentsAsString(join(Repository.REMOTE_DIR, remoteName)));
+        RemoteRepository remoteRepository =
+                new RemoteRepository(readContentsAsString(join(Repository.REMOTE_DIR, remoteName)));
         if (!join(remoteRepository.BRANCHES_DIR, remoteBranchName).exists()) {
             Main.printError(ErrorMessage.REMOTE_BRANCH_NOT_EXISTING.getMessage());
         }
@@ -99,7 +104,8 @@ class RemoteCommands {
             String frontCommitID = frontCommit.getId();
             Repository.saveObject(Repository.COMMITS_DIR, frontCommitID, frontCommit);
             for (String blobID : frontCommit.getBlobs().values()) {
-                Blob newBlob = Repository.getObjectByID(remoteRepository.BLOBS_DIR, blobID, Blob.class);
+                Blob newBlob = Repository.getObjectByID(remoteRepository.BLOBS_DIR, blobID,
+                        Blob.class);
                 Repository.saveObject(Repository.BLOBS_DIR, blobID, newBlob);
             }
             /* 父提交入队 */
@@ -107,7 +113,8 @@ class RemoteCommands {
                 if (parentID == null) {
                     continue;
                 }
-                queue.add(Repository.getObjectByID(remoteRepository.COMMITS_DIR, parentID, Commit.class));
+                queue.add(Repository.getObjectByID(remoteRepository.COMMITS_DIR, parentID,
+                        Commit.class));
             }
         }
         /* 创建新分支 */

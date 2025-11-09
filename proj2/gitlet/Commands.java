@@ -25,12 +25,12 @@ class Commands {
      * 如果当前提交有该文件相同内容放弃加入暂存区，否则加入暂存区并保存该BLOB（如果它不存在）
      */
     static void add(String filename) {
-        File FileContent = join(Repository.CWD, filename);
-        if (!FileContent.exists()) {
+        File fileContent = join(Repository.CWD, filename);
+        if (!fileContent.exists()) {
             Main.printError(ErrorMessage.NON_EXISTING_FILE.getMessage());
         }
         /* Create a new Blob. */
-        Blob newBlob = new Blob(filename, readContents(FileContent));
+        Blob newBlob = new Blob(filename, readContents(fileContent));
         String newId = newBlob.getId();
         /* Remove it from REMOVAL */
         join(Repository.REMOVAL, filename).delete();
@@ -73,7 +73,8 @@ class Commands {
         Commit newCommit = new Commit(message, parent, secondParent);
         /* Overwrite or add files from stagedArea to commit. */
         for (File toBeAdded : Repository.ADDITION.listFiles()) {
-            Blob newBlob = Repository.getObjectByID(Repository.BLOBS_DIR, readContentsAsString(toBeAdded), Blob.class);
+            Blob newBlob = Repository.getObjectByID(Repository.BLOBS_DIR,
+                    readContentsAsString(toBeAdded), Blob.class);
             newCommit.overwriteAdd(newBlob);
         }
         for (File toBeRemoved : Repository.REMOVAL.listFiles()) {
@@ -86,7 +87,7 @@ class Commands {
         String currBranch = Repository.getCurrBranch();
         /* 正常状态 */
         if (currBranch != null) {
-            Repository.SwitchAddBranch(currBranch, newId);
+            Repository.switchAddBranch(currBranch, newId);
             /* 分离头状态（该项目不会出现）*/
         } else {
             Repository.moveHead(newId);
@@ -131,7 +132,8 @@ class Commands {
         Commit currCommit = Repository.getCurrCommit();
         while (currCommit != null) {
             Commit.printCommit(currCommit);
-            currCommit = Repository.getObjectByID(Repository.COMMITS_DIR, currCommit.getParent1(), Commit.class);
+            currCommit = Repository.getObjectByID(Repository.COMMITS_DIR, currCommit.getParent1()
+                    , Commit.class);
         }
     }
 
@@ -139,7 +141,7 @@ class Commands {
      * Print all commits ever made with no specific order.
      * 打印目前为止拥有的所有提交，无确定顺序。
      */
-    static void global_log() {
+    static void globalLog() {
         for (File firstDic : Repository.COMMITS_DIR.listFiles()) {
             for (File file : firstDic.listFiles()) {
                 Commit currCommit = readObject(file, Commit.class);
@@ -220,7 +222,8 @@ class Commands {
                     modifiedButNotStagedFiles.add(filename + " (modified)");
                 }
             } else {
-                if (currCommit.containFilename(filename) && !currCommit.getBlobByFileName(filename).equals(cwdFileID)) {
+                if (currCommit.containFilename(filename) &&
+                        !currCommit.getBlobByFileName(filename).equals(cwdFileID)) {
                     modifiedButNotStagedFiles.add(filename + " (modified)");
                 }
             }
@@ -233,7 +236,8 @@ class Commands {
         }
         if (currCommit.getBlobs() != null) {
             for (String filename : currCommit.getBlobs().keySet()) {
-                if (!join(Repository.REMOVAL, filename).exists() && !join(Repository.CWD, filename).exists()) {
+                if (!join(Repository.REMOVAL, filename).exists() && !join(Repository.CWD,
+                        filename).exists()) {
                     modifiedButNotStagedFiles.add(filename + " (deleted)");
                 }
             }
@@ -256,8 +260,9 @@ class Commands {
      * No influence to the stagedArea.
      * 将单个文件改成指定提交时的版本，若工作目录不存在会创建该文件，文件在指定提交不存在时报错。
      */
-    static void checkout(String ID, String filename) {
-        Commit targetCommit = Repository.getObjectByID(Repository.COMMITS_DIR, ID, Commit.class);
+    static void checkout(String commitID, String filename) {
+        Commit targetCommit = Repository.getObjectByID(Repository.COMMITS_DIR, commitID,
+                Commit.class);
         if (targetCommit == null) {
             Main.printError(ErrorMessage.NON_EXISTING_COMMIT_WITH_ID.getMessage());
         }
@@ -313,10 +318,12 @@ class Commands {
      * but this method won't move pointer directly, should be used with other methods.
      * 将工作区所有文件切换至指定提交的版本。
      */
-    private static void checkoutToCommit(String ID) {
+    private static void checkoutToCommit(String commitID) {
         /* Get commits. */
-        Commit currCommit = Repository.getObjectByID(Repository.COMMITS_DIR, Repository.getCurrCommit().getId(), Commit.class);
-        Commit checkoutCommit = Repository.getObjectByID(Repository.COMMITS_DIR, ID, Commit.class);
+        Commit currCommit = Repository.getObjectByID(Repository.COMMITS_DIR,
+                Repository.getCurrCommit().getId(), Commit.class);
+        Commit checkoutCommit = Repository.getObjectByID(Repository.COMMITS_DIR, commitID,
+                Commit.class);
         if (checkoutCommit == null) {
             Main.printError(ErrorMessage.NON_EXISTING_COMMIT_WITH_ID.getMessage());
         }
@@ -349,7 +356,8 @@ class Commands {
         if (join(Repository.BRANCHES_DIR, newBranch).exists()) {
             Main.printError(ErrorMessage.ALREADY_EXISTING_BRANCH.getMessage());
         }
-        writeContents(join(Repository.BRANCHES_DIR, newBranch), readContentsAsString(join(Repository.BRANCHES_DIR, Repository.getCurrBranch())));
+        writeContents(join(Repository.BRANCHES_DIR, newBranch),
+                readContentsAsString(join(Repository.BRANCHES_DIR, Repository.getCurrBranch())));
     }
 
     /**
@@ -372,9 +380,9 @@ class Commands {
      * 将工作区所有文件改成指定提交的版本，并将当前分支头移至该提交，
      * 这也意味着中间的提交被放弃（仍可以通过ID查找）。
      */
-    static void reset(String ID) {
-        checkoutToCommit(ID);
-        Repository.SwitchAddBranch(Repository.getCurrBranch(), ID);
+    static void reset(String commitID) {
+        checkoutToCommit(commitID);
+        Repository.switchAddBranch(Repository.getCurrBranch(), commitID);
     }
 
     /**
@@ -393,7 +401,8 @@ class Commands {
      *
      */
     static void merge(String checkoutBranch) {
-        if (!Repository.isDictionaryEmpty(Repository.ADDITION) || !Repository.isDictionaryEmpty(Repository.REMOVAL)) {
+        if (!Repository.isDictionaryEmpty(Repository.ADDITION) ||
+                !Repository.isDictionaryEmpty(Repository.REMOVAL)) {
             Main.printError(ErrorMessage.CHANGES_UNCOMMITED.getMessage());
         }
         if (!join(Repository.BRANCHES_DIR, checkoutBranch).exists()) {
@@ -407,7 +416,10 @@ class Commands {
         Commit currCommit = Repository.getCurrCommit();
         Commit splitPoint = Repository.findLatestCommonAncestor(currCommit, checkoutCommit);
         for (String file : plainFilenamesIn(Repository.CWD)) {
-            if (Repository.isFileUntracked(file) && checkoutCommit.containFilename(file) && !checkoutCommit.getBlobByFileName(file).equals(splitPoint.getBlobByFileName(file))) {
+            if (Repository.isFileUntracked(file) &&
+                    checkoutCommit.containFilename(file) &&
+                    !checkoutCommit.getBlobByFileName(file).
+                            equals(splitPoint.getBlobByFileName(file))) {
                 Main.printError(ErrorMessage.UNTRACKED_FILE_EXISTS.getMessage());
             }
         }
@@ -418,6 +430,7 @@ class Commands {
             System.out.println("Given branch is an ancestor of the current branch.");
             return;
         }
+
         if (splitID.equals(currID)) {
             checkoutToCommit(checkoutID);
             writeContents(join(Repository.BRANCHES_DIR, currBranch), checkoutID);
@@ -434,17 +447,27 @@ class Commands {
             String splitFileID = splitPoint.getBlobByFileName(file);
             if (splitFileID != null) {
                 /* 给定分支存在且修改，当前分支未修改 → 检出给定分支版本并stage*/
-                if (checkoutFileID != null && !splitFileID.equals(checkoutFileID) && splitFileID.equals(currFileID)) {
+                if (checkoutFileID != null && !splitFileID.equals(checkoutFileID) &&
+                        splitFileID.equals(currFileID)) {
                     checkoutOneFileToBranch(checkoutBranch, file);
                     add(file);
                     /* 检出点存在，当前未改，给定不存在， 应删除并暂存 */
                 } else if (checkoutFileID == null && splitFileID.equals(currFileID)) {
                     remove(file);
                     /* 以不同方式修改 */
-                } else if ((!splitFileID.equals(currFileID) && !splitFileID.equals(checkoutFileID)) && ((currFileID != null && !currFileID.equals(checkoutFileID)) || (checkoutFileID != null && !checkoutFileID.equals(currFileID)))) {
-                    byte[] currentContent = currFileID == null ? new byte[0] : Repository.getObjectByID(Repository.BLOBS_DIR, currFileID, Blob.class).getContent();
-                    byte[] checkoutContent = checkoutFileID == null ? new byte[0] : Repository.getObjectByID(Repository.BLOBS_DIR, checkoutFileID, Blob.class).getContent();
-                    writeContents(join(Repository.CWD, file), "<<<<<<< HEAD\n", currentContent, "=======\n", checkoutContent, ">>>>>>>\n");
+                } else if ((!splitFileID.equals(currFileID) &&
+                        !splitFileID.equals(checkoutFileID)) &&
+                        ((currFileID != null && !currFileID.equals(checkoutFileID)) ||
+                                (checkoutFileID != null && !checkoutFileID.equals(currFileID)))) {
+                    byte[] currentContent = currFileID == null ? new byte[0] :
+                            Repository.getObjectByID(Repository.BLOBS_DIR, currFileID,
+                                    Blob.class).getContent();
+                    byte[] checkoutContent = checkoutFileID == null ? new byte[0] :
+                            Repository.getObjectByID(Repository.BLOBS_DIR, checkoutFileID,
+                                    Blob.class).getContent();
+                    writeContents(join(Repository.CWD, file),
+                            "<<<<<<< HEAD\n", currentContent,
+                            "=======\n", checkoutContent, ">>>>>>>\n");
                     add(file);
                     ifConflictHappens = true;
                 }
@@ -455,10 +478,15 @@ class Commands {
                     checkout(checkoutID, file);
                     add(file);
                     /* 冲突, 以不同方式修改。 */
-                } else if (currFileID != null && checkoutFileID != null && !currFileID.equals(checkoutFileID)) {
-                    byte[] currentContent = Repository.getObjectByID(Repository.BLOBS_DIR, currFileID, Blob.class).getContent();
-                    byte[] checkoutContent = Repository.getObjectByID(Repository.BLOBS_DIR, checkoutFileID, Blob.class).getContent();
-                    writeContents(join(Repository.CWD, file), "<<<<<<< HEAD\n", currentContent, "=======\n", checkoutContent, ">>>>>>>\n");
+                } else if (currFileID != null && checkoutFileID != null
+                        && !currFileID.equals(checkoutFileID)) {
+                    byte[] currentContent = Repository.getObjectByID(Repository.BLOBS_DIR,
+                            currFileID, Blob.class).getContent();
+                    byte[] checkoutContent = Repository.getObjectByID(Repository.BLOBS_DIR,
+                            checkoutFileID, Blob.class).getContent();
+                    writeContents(join(Repository.CWD, file),
+                            "<<<<<<< HEAD\n", currentContent,
+                            "=======\n", checkoutContent, ">>>>>>>\n");
                     add(file);
                     ifConflictHappens = true;
                 }

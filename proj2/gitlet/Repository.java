@@ -105,7 +105,7 @@ public class Repository {
         String originId = origin.getId();
         saveObject(COMMITS_DIR, originId, origin);
         moveHead(DEFAULT_BRANCH);
-        SwitchAddBranch(DEFAULT_BRANCH, originId);
+        switchAddBranch(DEFAULT_BRANCH, originId);
     }
 
     /**
@@ -117,7 +117,8 @@ public class Repository {
         if (!target.exists()) {
             return getObjectByID(COMMITS_DIR, currString, Commit.class);
         } else {
-            return getObjectByID(COMMITS_DIR, readContentsAsString(join(BRANCHES_DIR, currString)), Commit.class);
+            return getObjectByID(COMMITS_DIR,
+                    readContentsAsString(join(BRANCHES_DIR, currString)), Commit.class);
         }
     }
 
@@ -135,12 +136,13 @@ public class Repository {
     /**
      * Get a commit or blob by ID, which can be a shortened one but larger than SHORTENED_LENGTH.
      */
-    static <T extends Serializable> T getObjectByID(File dic, String ID, Class<T> cls) {
-        if (ID == null || ID.length() < SHORTENED_LENGTH || ID.length() > UID_LENGTH) {
+    static <T extends Serializable> T getObjectByID(File dic, String objectID, Class<T> cls) {
+        if (objectID == null || objectID.length() < SHORTENED_LENGTH ||
+                objectID.length() > UID_LENGTH) {
             return null;
         }
-        String dirString = ID.substring(0, SHORTENED_LENGTH);
-        String restString = ID.substring(SHORTENED_LENGTH);
+        String dirString = objectID.substring(0, SHORTENED_LENGTH);
+        String restString = objectID.substring(SHORTENED_LENGTH);
         File firstDir = join(dic, dirString);
         if (!firstDir.exists() || !firstDir.isDirectory()) {
             return null;
@@ -164,9 +166,9 @@ public class Repository {
     /**
      * Save a commit or blob to its dictionary.
      */
-    static <T extends Serializable> void saveObject(File dic, String ID, T object) {
-        String dicString = ID.substring(0, SHORTENED_LENGTH);
-        String restString = ID.substring(SHORTENED_LENGTH);
+    static <T extends Serializable> void saveObject(File dic, String objectID, T object) {
+        String dicString = objectID.substring(0, SHORTENED_LENGTH);
+        String restString = objectID.substring(SHORTENED_LENGTH);
         File firstDic = join(dic, dicString);
         if (!firstDic.exists()) {
             firstDic.mkdir();
@@ -207,8 +209,8 @@ public class Repository {
     /**
      * Add a new branch or switch the current branch.
      */
-    static void SwitchAddBranch(String newBranch, String ID) {
-        writeContents(join(BRANCHES_DIR, newBranch), ID);
+    static void switchAddBranch(String newBranch, String commitID) {
+        writeContents(join(BRANCHES_DIR, newBranch), commitID);
     }
 
     /**
@@ -226,7 +228,8 @@ public class Repository {
      * Return true if it's "Untracked File".
      */
     static boolean isFileUntracked(String filename) {
-        return join(Repository.CWD, filename).exists() && isFileUntrackedInCommit(filename) && !join(ADDITION, filename).exists();
+        return join(Repository.CWD, filename).exists() &&
+                isFileUntrackedInCommit(filename) && !join(ADDITION, filename).exists();
     }
 
     /**

@@ -10,29 +10,29 @@ import static gitlet.Utils.*;
  */
 public class RemoteRepository {
     /**
-     * The .gitlet dictionary.
-     */
-    public File GITLET_DIR;
-    /**
-     * The commits dictionary.
-     */
-    public File COMMITS_DIR;
-    /**
-     * The Blobs dictionary.
-     */
-    public File BLOBS_DIR;
-    /**
-     * The HEAD pointer.
-     */
-    public File HEAD;
-    /**
-     * The branches dictionary.
-     */
-    public File BRANCHES_DIR;
-    /**
      * The path of the remote repository.
      */
     private final String path;
+    /**
+     * The .gitlet dictionary.
+     */
+    File GITLET_DIR;
+    /**
+     * The commits dictionary.
+     */
+    File COMMITS_DIR;
+    /**
+     * The Blobs dictionary.
+     */
+    File BLOBS_DIR;
+    /**
+     * The HEAD pointer.
+     */
+    File HEAD;
+    /**
+     * The branches dictionary.
+     */
+    File BRANCHES_DIR;
 
     /**
      * Constructor.
@@ -68,13 +68,14 @@ public class RemoteRepository {
      * Get the branch head commit from the given branch.
      */
     Commit getCommitByBranch(String branchName) {
-        return Repository.getObjectByID(COMMITS_DIR, readContentsAsString(join(BRANCHES_DIR, branchName)), Commit.class);
+        return Repository.getObjectByID(COMMITS_DIR, readContentsAsString(join(BRANCHES_DIR,
+                branchName)), Commit.class);
     }
 
     /**
      * Move the branch to given commit or add a new branch.
      */
-    void SwitchAddBranch(String branchName, String commitID) {
+    void switchAddBranch(String branchName, String commitID) {
         writeContents(join(BRANCHES_DIR, branchName), commitID);
     }
 }

@@ -206,7 +206,8 @@ public class Commit implements Serializable {
     public String getFormattedTimestamp() {
         Instant instant = timestamp.toInstant();
         ZonedDateTime zdt = instant.atZone(ZoneId.systemDefault());
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM d HH:mm:ss yyyy Z", Locale.ENGLISH);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern
+                ("EEE MMM d HH:mm:ss yyyy Z", Locale.ENGLISH);
         return zdt.format(formatter);
     }
 }

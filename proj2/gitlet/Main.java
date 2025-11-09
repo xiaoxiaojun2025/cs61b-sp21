@@ -63,7 +63,7 @@ public class Main {
                 if (!Repository.isGitletSetUp()) {
                     printError(ErrorMessage.GITLET_NOT_INITIALIZED.getMessage());
                 }
-                global_log();
+                globalLog();
                 break;
             case "find":
                 if (!Repository.isGitletSetUp()) {
