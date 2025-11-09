@@ -132,8 +132,8 @@ class Commands {
         Commit currCommit = Repository.getCurrCommit();
         while (currCommit != null) {
             Commit.printCommit(currCommit);
-            currCommit = Repository.getObjectByID(Repository.COMMITS_DIR, currCommit.getParent1()
-                    , Commit.class);
+            currCommit = Repository.getObjectByID(Repository.COMMITS_DIR,
+                    currCommit.getParent1(), Commit.class);
         }
     }
 
@@ -222,8 +222,8 @@ class Commands {
                     modifiedButNotStagedFiles.add(filename + " (modified)");
                 }
             } else {
-                if (currCommit.containFilename(filename) &&
-                        !currCommit.getBlobByFileName(filename).equals(cwdFileID)) {
+                if (currCommit.containFilename(filename)
+                        && !currCommit.getBlobByFileName(filename).equals(cwdFileID)) {
                     modifiedButNotStagedFiles.add(filename + " (modified)");
                 }
             }
@@ -401,8 +401,8 @@ class Commands {
      *
      */
     static void merge(String checkoutBranch) {
-        if (!Repository.isDictionaryEmpty(Repository.ADDITION) ||
-                !Repository.isDictionaryEmpty(Repository.REMOVAL)) {
+        if (!Repository.isDictionaryEmpty(Repository.ADDITION)
+                || !Repository.isDictionaryEmpty(Repository.REMOVAL)) {
             Main.printError(ErrorMessage.CHANGES_UNCOMMITED.getMessage());
         }
         if (!join(Repository.BRANCHES_DIR, checkoutBranch).exists()) {
@@ -416,9 +416,9 @@ class Commands {
         Commit currCommit = Repository.getCurrCommit();
         Commit splitPoint = Repository.findLatestCommonAncestor(currCommit, checkoutCommit);
         for (String file : plainFilenamesIn(Repository.CWD)) {
-            if (Repository.isFileUntracked(file) &&
-                    checkoutCommit.containFilename(file) &&
-                    !checkoutCommit.getBlobByFileName(file).
+            if (Repository.isFileUntracked(file)
+                    && checkoutCommit.containFilename(file)
+                    && !checkoutCommit.getBlobByFileName(file).
                             equals(splitPoint.getBlobByFileName(file))) {
                 Main.printError(ErrorMessage.UNTRACKED_FILE_EXISTS.getMessage());
             }
@@ -447,28 +447,19 @@ class Commands {
             String splitFileID = splitPoint.getBlobByFileName(file);
             if (splitFileID != null) {
                 /* 给定分支存在且修改，当前分支未修改 → 检出给定分支版本并stage*/
-                if (checkoutFileID != null && !splitFileID.equals(checkoutFileID) &&
-                        splitFileID.equals(currFileID)) {
+                if (checkoutFileID != null && !splitFileID.equals(checkoutFileID)
+                        && splitFileID.equals(currFileID)) {
                     checkoutOneFileToBranch(checkoutBranch, file);
                     add(file);
                     /* 检出点存在，当前未改，给定不存在， 应删除并暂存 */
                 } else if (checkoutFileID == null && splitFileID.equals(currFileID)) {
                     remove(file);
                     /* 以不同方式修改 */
-                } else if ((!splitFileID.equals(currFileID) &&
-                        !splitFileID.equals(checkoutFileID)) &&
-                        ((currFileID != null && !currFileID.equals(checkoutFileID)) ||
-                                (checkoutFileID != null && !checkoutFileID.equals(currFileID)))) {
-                    byte[] currentContent = currFileID == null ? new byte[0] :
-                            Repository.getObjectByID(Repository.BLOBS_DIR, currFileID,
-                                    Blob.class).getContent();
-                    byte[] checkoutContent = checkoutFileID == null ? new byte[0] :
-                            Repository.getObjectByID(Repository.BLOBS_DIR, checkoutFileID,
-                                    Blob.class).getContent();
-                    writeContents(join(Repository.CWD, file),
-                            "<<<<<<< HEAD\n", currentContent,
-                            "=======\n", checkoutContent, ">>>>>>>\n");
-                    add(file);
+                } else if ((!splitFileID.equals(currFileID)
+                        && !splitFileID.equals(checkoutFileID))
+                        && ((currFileID != null && !currFileID.equals(checkoutFileID))
+                        || (checkoutFileID != null && !checkoutFileID.equals(currFileID)))) {
+                    dealWithConflict(currFileID, checkoutFileID, file);
                     ifConflictHappens = true;
                 }
                 /* 以相同方式修改，都删除，当前修改给定未修改, 不会有任何改变。*/
@@ -480,14 +471,7 @@ class Commands {
                     /* 冲突, 以不同方式修改。 */
                 } else if (currFileID != null && checkoutFileID != null
                         && !currFileID.equals(checkoutFileID)) {
-                    byte[] currentContent = Repository.getObjectByID(Repository.BLOBS_DIR,
-                            currFileID, Blob.class).getContent();
-                    byte[] checkoutContent = Repository.getObjectByID(Repository.BLOBS_DIR,
-                            checkoutFileID, Blob.class).getContent();
-                    writeContents(join(Repository.CWD, file),
-                            "<<<<<<< HEAD\n", currentContent,
-                            "=======\n", checkoutContent, ">>>>>>>\n");
-                    add(file);
+                    dealWithConflict(currFileID, checkoutFileID, file);
                     ifConflictHappens = true;
                 }
                 /* 拆分点不存在且仅存在于当前分支中的任何文件都应保持原样。
@@ -498,5 +482,21 @@ class Commands {
             System.out.println(ErrorMessage.MERGE_CONFLICT.getMessage());
         }
         commit(String.format("Merged %s into %s.", checkoutBranch, currBranch), checkoutID);
+    }
+
+    /**
+     * Help deal with merge conflicts.
+     * */
+    private static void dealWithConflict(String currFileID, String checkoutFileID, String file) {
+        byte[] currentContent = currFileID == null ? new byte[0]
+                : Repository.getObjectByID(Repository.BLOBS_DIR, currFileID,
+                Blob.class).getContent();
+        byte[] checkoutContent = checkoutFileID == null ? new byte[0]
+                : Repository.getObjectByID(Repository.BLOBS_DIR, checkoutFileID,
+                Blob.class).getContent();
+        writeContents(join(Repository.CWD, file),
+                "<<<<<<< HEAD\n", currentContent,
+                "=======\n", checkoutContent, ">>>>>>>\n");
+        add(file);
     }
 }

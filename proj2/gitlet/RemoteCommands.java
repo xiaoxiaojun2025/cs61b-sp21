@@ -65,8 +65,8 @@ class RemoteCommands {
                 break;
             }
             stack.push(currCommit);
-            currCommit = Repository.getObjectByID(Repository.COMMITS_DIR, currCommit.getParent1()
-                    , Commit.class);
+            currCommit = Repository.getObjectByID(Repository.COMMITS_DIR,
+                    currCommit.getParent1(), Commit.class);
         }
         if (!found) {
             Main.printError(ErrorMessage.REMOTE_HEAD_NOT_IN_CURR.getMessage());

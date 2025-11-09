@@ -137,8 +137,8 @@ public class Repository {
      * Get a commit or blob by ID, which can be a shortened one but larger than SHORTENED_LENGTH.
      */
     static <T extends Serializable> T getObjectByID(File dic, String objectID, Class<T> cls) {
-        if (objectID == null || objectID.length() < SHORTENED_LENGTH ||
-                objectID.length() > UID_LENGTH) {
+        if (objectID == null || objectID.length() < SHORTENED_LENGTH
+                || objectID.length() > UID_LENGTH) {
             return null;
         }
         String dirString = objectID.substring(0, SHORTENED_LENGTH);
@@ -228,8 +228,8 @@ public class Repository {
      * Return true if it's "Untracked File".
      */
     static boolean isFileUntracked(String filename) {
-        return join(Repository.CWD, filename).exists() &&
-                isFileUntrackedInCommit(filename) && !join(ADDITION, filename).exists();
+        return join(Repository.CWD, filename).exists()
+                && isFileUntrackedInCommit(filename) && !join(ADDITION, filename).exists();
     }
 
     /**
