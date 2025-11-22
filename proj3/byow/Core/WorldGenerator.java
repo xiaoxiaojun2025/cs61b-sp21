@@ -89,12 +89,12 @@ class WorldGenerator {
             }
         }
     }
-    private static int findMax(int...nums) {
-        int max = nums[0];
+    private static int findMin(int...nums) {
+        int min = nums[0];
         for (int i = 1; i < nums.length; ++i) {
-            max = Math.max(max, nums[i]);
+            min = Math.min(min, nums[i]);
         }
-        return max;
+        return min;
     }
     private static int maxHallwayWidth(int length) {return 2 * ((length - 1) / 2) - 1;}
     //生成的走廊不会超过房间
@@ -102,11 +102,11 @@ class WorldGenerator {
         if (r1 == null || r2 == null) {return;}
         TETile wall = r1.getWall(), floor = r1.getFloor();
         int x1 = r1.getMiddleX(), y1 = r1.getMiddleY(), x2 = r2.getMiddleX(), y2 = r2.getMiddleY();
-        int validHallway = Math.min(HALLWAY_WIDTH, findMax(maxHallwayWidth(r1.getWidth()), maxHallwayWidth(r1.getHeight())
-                ,maxHallwayWidth(r2.getWidth()), maxHallwayWidth(r2.getHeight())));
+        int validHallway = findMin(HALLWAY_WIDTH, maxHallwayWidth(r1.getWidth()), maxHallwayWidth(r1.getHeight())
+                , maxHallwayWidth(r2.getWidth()), maxHallwayWidth(r2.getHeight()));
         Hallway hallway = new Hallway(wall, floor, validHallway);
         //order为真先水平后垂直，否则先垂直后水平（以r1为起点）
-        boolean order = true;
+        boolean order = bernoulli(random);
         if (order) {
             //水平
             connectHorizontally(world, hallway, x1, x2, y1);
