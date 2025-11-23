@@ -8,7 +8,23 @@ public class Engine {
     TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
     public static final int WIDTH = 80;
-    public static final int HEIGHT = 30;
+    public static final int HEIGHT = 40;
+
+    public static final int WORLD_HEIGHT = 35;
+
+    //特殊按键
+    public static final char NEW_WORLD = 'N';
+    public static final char SEED = 'S';
+    public static final char UP = 'W';
+    public static final char DOWN = 'S';
+    public static final char LEFT = 'A';
+    public static final char RIGHT = 'D';
+    public static final char LOAD = 'L';
+    public static final char QUIT = 'Q';
+    public static final char COMBINE = ':';
+
+
+
 
     /**
      * Method used for exploring a fresh world. This method should handle all inputs,
@@ -47,8 +63,44 @@ public class Engine {
         // See proj3.byow.InputDemo for a demo of how you can make a nice clean interface
         // that works for many different input types.
 
-        WorldGenerator newWorld = new WorldGenerator(Engine.WIDTH, Engine.HEIGHT, input);
-        return newWorld.getWorld();
+        Commands commands = new Commands(input);
+        World world;
+        if (commands.getCurrKey() == LOAD) {
+            commands.load();
+        }
+        if (commands.getCurrKey() == NEW_WORLD) {
+            long seed = commands.getSeed();
+            world = new World(WIDTH, WORLD_HEIGHT, seed);
+        } else {
+            world = new World(WIDTH, WORLD_HEIGHT);
+            return world.getWorld();
+        }
+        while (commands.haveNextKey()) {
+            char c = commands.getNextKey();
+            switch (c) {
+                case 'W':
+                    world.movePlayer(0, 1);
+                    break;
+                case 'A':
+                    world.movePlayer(-1, 0);
+                    break;
+                case 'S':
+                    world.movePlayer(0, -1);
+                    break;
+                case 'D':
+                    world.movePlayer(1, 0);
+                    break;
+                case ':':
+                    if (commands.getNextKey() == QUIT) {
+                        commands.quitSave();
+                    }
+                    break;
+                default:
+            }
+        }
+        return world.getWorld();
     }
+
+
 
 }
