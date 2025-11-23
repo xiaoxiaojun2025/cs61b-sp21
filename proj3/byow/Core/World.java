@@ -1,6 +1,5 @@
 package byow.Core;
 
-import afu.org.checkerframework.checker.regex.qual.Wild;
 import byow.TileEngine.TETile;
 import byow.TileEngine.Tileset;
 import static byow.Core.HallwayGenerator.*;
