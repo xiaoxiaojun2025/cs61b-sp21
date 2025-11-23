@@ -4,7 +4,7 @@ package byow.Core;
 import java.io.File;
 import static byow.Core.Utils.*;
 
-class Commands implements InputThing{
+class Commands implements InputThing {
 
     //文件路径
     static final File CWD = new File(System.getProperty("user.dir"));

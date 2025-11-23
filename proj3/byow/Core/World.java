@@ -52,17 +52,21 @@ class World {
         createWorld();
     }
 
-    TETile[][] getWorld() {return world;}
+    TETile[][] getWorld() {
+        return world;
+    }
 
     void createWorld() {
         int roomNum = uniform(random, MIN_ROOM_NUM, MAX_ROOM_NUM);
         Room room = null, preRoom;
         for (int i = 0; i < roomNum; ++i) {
             int x = uniform(random, this.width), y = uniform(random, this.height);
-            int width = uniform(random, MIN_ROOM_SIZE, MAX_ROOM_SIZE);
-            int height = uniform(random, MIN_ROOM_SIZE, MAX_ROOM_SIZE);
-            Room tempRoom = new Room(x, y, width, height);
-            if (!isRoomValid(tempRoom)) {continue;}
+            int roomWidth = uniform(random, MIN_ROOM_SIZE, MAX_ROOM_SIZE);
+            int roomHeight = uniform(random, MIN_ROOM_SIZE, MAX_ROOM_SIZE);
+            Room tempRoom = new Room(x, y, roomWidth, roomHeight);
+            if (!isRoomValid(tempRoom)) {
+                continue;
+            }
             preRoom = room;
             room = tempRoom;
             addRoom(room);
@@ -77,12 +81,13 @@ class World {
      * @return Return true if a room is in the world and only have walls or background in the range.
      */
     boolean isRoomValid(Room room) {
-        int x = room.getX(), y = room.getY(), width = room.getWidth(), height = room.getHeight();
-        if (x < 0 || y < 0 || x + width > this.width || y + height > this.height) {
+        int x = room.getX(), y = room.getY();
+        int roomWidth = room.getWidth(), roomHeight = room.getHeight();
+        if (x < 0 || y < 0 || x + roomWidth > this.width || y + roomHeight > this.height) {
             return false;
         }
-        for (int i = x; i < x + width; ++i) {
-            for (int j = y; j < y + height; ++j) {
+        for (int i = x; i < x + roomWidth; ++i) {
+            for (int j = y; j < y + roomHeight; ++j) {
                 if (world[i][j] != WALL && world[i][j] != BACKGROUND) {
                     return false;
                 }
@@ -92,11 +97,14 @@ class World {
     }
 
     void addRoom(Room room) {
-        if (!isRoomValid(room)) {return;}
-        int x = room.getX(), y = room.getY(), width = room.getWidth(), height = room.getHeight();
-        for (int i = x; i < x + width; ++i) {
-            for (int j = y; j < y + height; ++j) {
-                if (i == x || i == x + width - 1 || j == y || j == y + height - 1) {
+        if (!isRoomValid(room)) {
+            return;
+        }
+        int x = room.getX(), y = room.getY();
+        int roomWidth = room.getWidth(), roomHeight = room.getHeight();
+        for (int i = x; i < x + roomWidth; ++i) {
+            for (int j = y; j < y + roomHeight; ++j) {
+                if (i == x || i == x + roomWidth - 1 || j == y || j == y + roomHeight - 1) {
                     world[i][j] = WALL;
                 } else {
                     world[i][j] = FLOOR;
@@ -107,9 +115,13 @@ class World {
 
     //生成的走廊不会超过房间
     void connectRooms(Room r1, Room r2) {
-        if (r1 == null || r2 == null) {return;}
-        int x1 = r1.getMiddleX(), y1 = r1.getMiddleY(), x2 = r2.getMiddleX(), y2 = r2.getMiddleY();
-        int validHallwayWidth = Math.min(HALLWAY_WIDTH, Math.min(r1.maxHallwayWidth(), r2.maxHallwayWidth()));
+        if (r1 == null || r2 == null) {
+            return;
+        }
+        int x1 = r1.getMiddleX(), y1 = r1.getMiddleY();
+        int x2 = r2.getMiddleX(), y2 = r2.getMiddleY();
+        int validHallwayWidth = Math.min(HALLWAY_WIDTH,
+                Math.min(r1.maxHallwayWidth(), r2.maxHallwayWidth()));
         //order为真先水平后垂直，否则先垂直后水平（以r1为起点）
         boolean order = bernoulli(random);
         if (order) {
@@ -147,6 +159,5 @@ class World {
         return x < 0 || x >= width || y < 0 || y >= height;
     }
 
-
-
 }
+
